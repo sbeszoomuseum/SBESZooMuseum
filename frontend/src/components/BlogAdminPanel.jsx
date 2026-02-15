@@ -26,8 +26,15 @@ const BlogAdminPanel = ({ token, isDark }) => {
   const [submitLoading, setSubmitLoading] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
 
-  const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || 'https://biomuseum.onrender.com';
+  const BACKEND_URL = window.location.hostname === 'localhost'
+    ? 'http://localhost:8000'
+    : (process.env.REACT_APP_BACKEND_URL || 'https://biomuseum.onrender.com');
   const API = `${BACKEND_URL}/api`;
+  
+  // Debug log
+  React.useEffect(() => {
+    console.log('📚 BlogAdminPanel - Using BACKEND_URL:', BACKEND_URL);
+  }, []);
 
   useEffect(() => {
     fetchData();

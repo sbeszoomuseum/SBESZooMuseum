@@ -19,7 +19,9 @@ const BlogHomepage = ({ isDark }) => {
   });
   const [suggestionSubmitting, setSuggestionSubmitting] = useState(false);
 
-  const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || 'https://biomuseum.onrender.com';
+  const BACKEND_URL = window.location.hostname === 'localhost'
+    ? 'http://localhost:8000'
+    : (process.env.REACT_APP_BACKEND_URL || 'https://biomuseum.onrender.com');
   const API = `${BACKEND_URL}/api`;
 
   useEffect(() => {

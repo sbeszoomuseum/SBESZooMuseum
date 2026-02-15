@@ -12,13 +12,22 @@ import AboutUs from './components/AboutUs';
 import BlogHomepage from './components/BlogHomepage';
 import BlogDetailPage from './components/BlogDetailPage';
 import BlogAdminPanel from './components/BlogAdminPanel';
+import PersonalizationAdminPanel from './components/PersonalizationAdminPanel';
 import BioMuseumAIChatbot from './components/BioMuseumAIChatbot';
 import { AuthProvider } from './context/AuthContext';
+import { SiteProvider, SiteContext } from './contexts/SiteContext';
 import { formatDateIST } from './utils/dateFormatter';
 import "./App.css";
 
 // Determine backend URL based on current location
 const BACKEND_URL = (() => {
+  // IMPORTANT: During development, always use localhost:8000
+  // Check if this is development (not built)
+  if (process.env.NODE_ENV === 'development') {
+    console.log('🔧 Development mode - Using backend at http://localhost:8000');
+    return 'http://localhost:8000';
+  }
+  
   // If env var is set, use it
   if (process.env.REACT_APP_BACKEND_URL) {
     return process.env.REACT_APP_BACKEND_URL;
@@ -39,6 +48,7 @@ const BACKEND_URL = (() => {
 })();
 
 const API = `${BACKEND_URL}/api`;
+console.log('🔌 API Base URL:', API);
 
 // Configure axios with longer timeout
 axios.defaults.timeout = 30000; // 30 seconds for long operations
@@ -128,6 +138,7 @@ const Homepage = () => {
   const navigate = useNavigate();
   const { login } = React.useContext(AdminContext);
   const { isDark, toggleTheme } = React.useContext(ThemeContext);
+  const { siteSettings } = React.useContext(SiteContext);
 
   useEffect(() => {
     fetchOrganisms();
@@ -262,7 +273,7 @@ const Homepage = () => {
         <div className="max-w-7xl mx-auto px-3 sm:px-4 py-3 sm:py-4">
           <div className="flex justify-between items-center">
             <div className="text-left">
-              <h1 className="text-lg sm:text-2xl font-bold text-yellow-400"> BioMuseum</h1>
+              <h1 className="text-lg sm:text-2xl font-bold text-yellow-400"> {siteSettings?.website_name || 'BioMuseum'}</h1>
             </div>
             <div className="flex gap-2 sm:gap-3 items-center">
               <button
@@ -283,7 +294,7 @@ const Homepage = () => {
       </header>
 
       {/* Hero Section with Video Background */}
-      <div className="relative h-96 sm:h-[500px] overflow-hidden flex items-center justify-center">
+      <div className="relative min-h-screen overflow-hidden flex flex-col items-center justify-center">
         <video 
           autoPlay 
           muted 
@@ -295,69 +306,48 @@ const Homepage = () => {
           Your browser does not support the video tag.
         </video>
         
-        {/* Overlay for text */}
-        <div className="absolute inset-0 bg-black bg-opacity-40 flex flex-col justify-center items-start pl-6 sm:pl-12">
-          <div className="text-white px-4 sm:px-6 py-8 max-w-2xl">
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 leading-tight drop-shadow-lg">BioMuseum A Journey Through Living Wonders</h2>
-            <p className="text-sm sm:text-base md:text-lg mb-6 leading-relaxed drop-shadow-md max-w-xl">
-              Discover the wonders of life science through our interactive biology museum. Learn about diverse diverse organisms and their fascinating characteristics.
+        {/* Dark Overlay */}
+        <div className="absolute inset-0 bg-black bg-opacity-60"></div>
+        
+        {/* Content Container */}
+        <div className="relative z-10 w-full h-full flex flex-col items-center justify-center px-4 sm:px-6 py-12 sm:py-16">
+          {/* Title */}
+          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white text-center mb-6 leading-tight drop-shadow-lg max-w-4xl">
+            {siteSettings?.website_name || 'BioMuseum'} - A Journey Through Living Wonders
+          </h1>
+          
+          {/* Description */}
+          <p className="text-sm sm:text-base lg:text-lg text-white text-center mb-8 drop-shadow-md max-w-3xl leading-relaxed">
+            Discover the wonders of life science through our interactive biology museum. Learn about diverse organisms and their fascinating characteristics from {siteSettings?.college_name || 'SBES College of Science'}.
+          </p>
+          
+          {/* Divider Line */}
+          <div className="w-full max-w-md h-px bg-white mb-8 opacity-80"></div>
+          
+          {/* Institution Branding */}
+          <div className="text-center text-white drop-shadow-lg">
+            <p className="text-xs sm:text-sm font-semibold mb-2 tracking-wide">
+              {siteSettings?.initiative_text || 'AN INITIATIVE BY'}
             </p>
-            <div className="button-row">
-              <button
-                onClick={() => navigate('/organisms')}
-                className="btn-explore border-2 border-white bg-transparent hover:bg-white hover:text-gray-800 text-white px-5 sm:px-6 py-2 sm:py-2.5 rounded font-semibold text-sm sm:text-base inline-flex items-center gap-2"
-              >
-                <i className="fas fa-arrow-right"></i> <span>Explore</span>
-              </button>
-              <button
-                onClick={() => navigate('/biotube')}
-                className="btn-biotube bg-yellow-500 hover:bg-yellow-600 text-white px-5 sm:px-6 py-2 sm:py-2.5 rounded font-semibold text-sm sm:text-base inline-flex items-center gap-2"
-              >
-                <i className="fas fa-video"></i> <span>BioTube</span>
-              </button>
-              <button
-                onClick={() => navigate('/blogs')}
-                className="btn-blog bg-purple-600 hover:bg-purple-700 text-white px-5 sm:px-6 py-2 sm:py-2.5 rounded font-semibold text-sm sm:text-base inline-flex items-center gap-2"
-              >
-                <i className="fas fa-book"></i> <span>Blog</span>
-              </button>
-            </div>
+            <h2 className="text-2xl sm:text-3xl font-bold mb-3">
+              {siteSettings?.college_name || 'S.B.E.S. COLLEGE OF SCIENCE'}
+            </h2>
+            <p className="text-xs sm:text-sm font-semibold tracking-wide mb-6">
+              {siteSettings?.department_name || 'DEPARTMENT OF ZOOLOGY | ZOOLOGICAL MUSEUM'}
+            </p>
+            {/* Logo Display */}
+            {siteSettings?.logo_url && (
+              <div className="flex justify-center">
+                <img
+                  src={siteSettings.logo_url}
+                  alt="Institution Logo"
+                  className="h-32 sm:h-40 md:h-48 object-contain drop-shadow-xl"
+                />
+              </div>
+            )}
           </div>
         </div>
       </div>
-
-      {/* Main Content */}
-      <main className={`flex-1 ${isDark ? 'bg-gray-900' : 'bg-gray-50'} py-8 sm:py-12`}>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6">
-          <h3 className={`text-xl sm:text-2xl font-bold mb-6 ${isDark ? 'text-white' : 'text-gray-800'}`}>Overview</h3>
-          <div className="flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory">
-            {organisms.slice(0, 8).map((org) => (
-              <div
-                key={org.id}
-                onClick={() => navigate(`/organism/${org.id}`)}
-                className="organism-modal flex-shrink-0 w-32 sm:w-40 h-40 sm:h-48 rounded-lg overflow-hidden cursor-pointer transform hover:scale-105 transition-all duration-300 snap-start group"
-              >
-                <div className="w-full h-full relative overflow-hidden bg-gray-300">
-                  {org.images && org.images[0] ? (
-                    <img
-                      src={org.images[0]}
-                      alt={org.name}
-                      className="organism-image w-full h-full object-cover group-hover:brightness-75 transition-all duration-300"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center bg-gray-400">
-                      <i className="fas fa-leaf text-gray-600 text-3xl"></i>
-                    </div>
-                  )}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-2">
-                    <p className="text-white text-xs font-semibold line-clamp-1">{org.name}</p>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </main>
 
       {/* Animated Sidebar Menu */}
       {showMenu && (
@@ -466,20 +456,19 @@ const Homepage = () => {
 
             {/* Footer in Sidebar */}
             <div className="border-t border-gray-600 p-4">
-              <p className="text-gray-400 text-sm text-center">© 2025 BioMuseum</p>
+              <p className="text-gray-400 text-sm text-center">© 2025 {siteSettings?.website_name || 'BioMuseum'}</p>
             </div>
           </div>
         </div>
       )}
 
-      {/* Footer */}
-      <footer className={`${isDark ? 'bg-gray-800' : 'bg-gray-800'} text-white mt-0`}>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
-          <div className={`text-center text-xs sm:text-sm ${isDark ? 'text-gray-400' : 'text-gray-400'}`}>
-            <p>© Made with ❤️ @ Chh. Sambhaji Nagar</p>
-          </div>
-        </div>
-      </footer>
+      {showSuggestionModal && (
+        <SuggestionModal 
+          isDark={isDark} 
+          onClose={() => setShowSuggestionModal(false)}
+          token={null}
+        />
+      )}
 
       {/* Admin Login Modal */}
       {showAdminLogin && (
@@ -555,14 +544,6 @@ const Homepage = () => {
             </form>
           </div>
         </div>
-      )}
-
-      {showSuggestionModal && (
-        <SuggestionModal 
-          isDark={isDark} 
-          onClose={() => setShowSuggestionModal(false)}
-          token={null}
-        />
       )}
     </div>
   );
@@ -940,6 +921,14 @@ const AdminPanel = () => {
             >
               <i className="fa-solid fa-book"></i> Blogs
             </button>
+            <button
+              onClick={() => setActiveView('personalization')}
+              className={`px-6 py-4 font-semibold transition-all ${activeView === 'personalization' 
+                ? `border-b-2 ${isDark ? 'border-purple-500 text-purple-400' : 'border-purple-600 text-purple-600'}` 
+                : `${isDark ? 'text-gray-400 hover:text-purple-400' : 'text-gray-600 hover:text-purple-600'}`}`}
+            >
+              <i className="fa-solid fa-wand-magic-sparkles"></i> Personalization
+            </button>
           </div>
 
           {/* Mobile Menu */}
@@ -986,6 +975,12 @@ const AdminPanel = () => {
                 className={`w-full text-left px-4 py-3 font-semibold ${activeView === 'blogs' ? (isDark ? 'bg-purple-900 text-purple-300' : 'bg-purple-100 text-purple-700') : (isDark ? 'text-gray-300' : 'text-gray-700')}`}
               >
                 📚 Blogs
+              </button>
+              <button
+                onClick={() => { setActiveView('personalization'); setMobileMenuOpen(false); }}
+                className={`w-full text-left px-4 py-3 font-semibold ${activeView === 'personalization' ? (isDark ? 'bg-purple-900 text-purple-300' : 'bg-purple-100 text-purple-700') : (isDark ? 'text-gray-300' : 'text-gray-700')}`}
+              >
+                ✨ Personalization
               </button>
               <button
                 onClick={() => { navigate('/'); setMobileMenuOpen(false); }}
@@ -1045,6 +1040,12 @@ const AdminPanel = () => {
         )}
         {activeView === 'blogs' && (
           <BlogAdminPanel
+            token={token}
+            isDark={isDark}
+          />
+        )}
+        {activeView === 'personalization' && (
+          <PersonalizationAdminPanel
             token={token}
             isDark={isDark}
           />
@@ -3387,27 +3388,29 @@ function App() {
     <GoogleOAuthProvider clientId={googleClientId}>
       <AuthProvider>
         <ThemeProvider>
-          <AdminProvider>
-            <HelmetProvider>
-              <div className="App">
-                <BrowserRouter>
-                  <Routes>
-                    <Route path="/" element={<Homepage />} />
-                    <Route path="/organisms" element={<OrganismsPage />} />
-                    <Route path="/scanner" element={<QRScanner />} />
-                    <Route path="/organism/:id" element={<OrganismDetail />} />
-                    <Route path="/admin" element={<AdminPanel />} />
-                    <Route path="/biotube" element={<BiotubeWrapper />} />
-                    <Route path="/biotube/watch/:videoId" element={<BiotubeVideoWrapper />} />
-                    <Route path="/about" element={<AboutUsWrapper />} />
-                    <Route path="/blogs" element={<BlogWrapper />} />
-                    <Route path="/blog/:blogId" element={<BlogDetailWrapper />} />
-                  </Routes>
-                  <BioMuseumAIChatbot />
-                </BrowserRouter>
-              </div>
-            </HelmetProvider>
-          </AdminProvider>
+          <SiteProvider>
+            <AdminProvider>
+              <HelmetProvider>
+                <div className="App">
+                  <BrowserRouter>
+                    <Routes>
+                      <Route path="/" element={<Homepage />} />
+                      <Route path="/organisms" element={<OrganismsPage />} />
+                      <Route path="/scanner" element={<QRScanner />} />
+                      <Route path="/organism/:id" element={<OrganismDetail />} />
+                      <Route path="/admin" element={<AdminPanel />} />
+                      <Route path="/biotube" element={<BiotubeWrapper />} />
+                      <Route path="/biotube/watch/:videoId" element={<BiotubeVideoWrapper />} />
+                      <Route path="/about" element={<AboutUsWrapper />} />
+                      <Route path="/blogs" element={<BlogWrapper />} />
+                      <Route path="/blog/:blogId" element={<BlogDetailWrapper />} />
+                    </Routes>
+                    <BioMuseumAIChatbot />
+                  </BrowserRouter>
+                </div>
+              </HelmetProvider>
+            </AdminProvider>
+          </SiteProvider>
         </ThemeProvider>
       </AuthProvider>
     </GoogleOAuthProvider>

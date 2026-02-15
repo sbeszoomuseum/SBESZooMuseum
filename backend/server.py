@@ -1,4 +1,4 @@
-from fastapi import FastAPI, APIRouter, HTTPException, Depends, Query, Header
+from fastapi import FastAPI, APIRouter, HTTPException, Depends, Query, Header, UploadFile, File
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
@@ -68,10 +68,11 @@ video_comments_collection = None
 blogs_collection = None
 blog_suggestions_collection = None
 gmail_users_collection = None
+site_settings_collection = None
 mongodb_connected = False
 
 async def init_mongodb():
-    global db, organisms_collection, suggestions_collection, biotube_videos_collection, video_suggestions_collection, video_comments_collection, blogs_collection, blog_suggestions_collection, gmail_users_collection, mongodb_connected
+    global db, organisms_collection, suggestions_collection, biotube_videos_collection, video_suggestions_collection, video_comments_collection, blogs_collection, blog_suggestions_collection, gmail_users_collection, site_settings_collection, mongodb_connected
     max_retries = 15  # Increased from 10 to 15
     retry_count = 0
     
@@ -120,6 +121,7 @@ async def init_mongodb():
             blogs_collection = db.blogs
             blog_suggestions_collection = db.blog_suggestions
             gmail_users_collection = db.gmail_users
+            site_settings_collection = db.site_settings
             
             # Test that we can actually query
             test_count = await organisms_collection.count_documents({})
@@ -401,6 +403,24 @@ class BiologyAnswer(BaseModel):
 class BlogGenerateRequest(BaseModel):
     subject: str
     tone: Optional[str] = "educational"  # educational, casual, formal
+
+class SiteSettings(BaseModel):
+    """Site-wide personalization settings"""
+    id: str = Field(default_factory=lambda: "site_settings")
+    website_name: str = "BioMuseum"
+    initiative_text: str = "An Initiative by"
+    college_name: str = "SBES College of Science"
+    department_name: str = "Zoology Department"
+    logo_url: Optional[str] = None
+    created_at: str = Field(default_factory=get_ist_now)
+    updated_at: str = Field(default_factory=get_ist_now)
+
+class SiteSettingsUpdate(BaseModel):
+    website_name: Optional[str] = None
+    initiative_text: Optional[str] = None
+    college_name: Optional[str] = None
+    department_name: Optional[str] = None
+    logo_url: Optional[str] = None
 
 # Database functions - MongoDB only (no JSON fallback)
 async def get_organisms_list():
@@ -1357,7 +1377,81 @@ async def logout(authorization: str = Header(None)):
 
 # ==================== END GMAIL USER AUTHENTICATION ====================
 
-@api_router.post("/admin/organisms", response_model=Organism)
+# ==================== FILE UPLOAD ENDPOINT ====================
+
+@api_router.post("/upload")
+async def upload_file(file: UploadFile = File(...), _: bool = Depends(verify_admin_token)):
+    """
+    Upload a file (image, document, etc.) and return the file URL.
+    Admin-only endpoint.
+    Supports images and common document formats.
+    """
+    try:
+        if not file:
+            raise HTTPException(status_code=400, detail="No file provided")
+        
+        # Validate file type
+        allowed_extensions = {'.jpg', '.jpeg', '.png', '.gif', '.webp', '.pdf', '.doc', '.docx', '.txt'}
+        file_ext = Path(file.filename).suffix.lower()
+        
+        if file_ext not in allowed_extensions:
+            raise HTTPException(
+                status_code=400, 
+                detail=f"File type not allowed. Allowed types: {', '.join(allowed_extensions)}"
+            )
+        
+        # Limit file size (5MB)
+        max_size = 5 * 1024 * 1024  # 5MB
+        file_content = await file.read()
+        
+        if len(file_content) > max_size:
+            raise HTTPException(status_code=400, detail="File size exceeds 5MB limit")
+        
+        # Generate unique filename
+        file_id = str(uuid.uuid4())
+        file_ext = Path(file.filename).suffix.lower()
+        unique_filename = f"{file_id}{file_ext}"
+        
+        # Create uploads directory if it doesn't exist
+        upload_dir = Path("uploads")
+        upload_dir.mkdir(exist_ok=True)
+        
+        # Save file
+        file_path = upload_dir / unique_filename
+        with open(file_path, "wb") as f:
+            f.write(file_content)
+        
+        # Return file URL (relative path that can be accessed)
+        file_url = f"/uploads/{unique_filename}"
+        
+        logging.info(f"File uploaded successfully: {unique_filename}")
+        
+        return {
+            "success": True,
+            "file_url": file_url,
+            "filename": unique_filename,
+            "file_id": file_id
+        }
+    
+    except HTTPException:
+        raise
+    except Exception as e:
+        logging.error(f"Error uploading file: {e}")
+        raise HTTPException(status_code=500, detail=f"Error uploading file: {str(e)}")
+
+# Serve static uploads
+from fastapi.staticfiles import StaticFiles
+
+uploads_dir = Path("uploads")
+uploads_dir.mkdir(exist_ok=True)
+
+# Only add static files middleware if uploads directory exists
+if uploads_dir.exists():
+    app.mount("/uploads", StaticFiles(directory=str(uploads_dir)), name="uploads")
+
+# ==================== ADMIN ORGANISMS ENDPOINTS ====================
+
+
 async def create_organism(organism: OrganismCreate, _: bool = Depends(verify_admin_token)):
     try:
         organism_obj = Organism(**organism.dict())
@@ -2669,6 +2763,50 @@ If NOT biology: {{"answer": "I only help with biology questions!", "organisms": 
             )
         else:
             raise HTTPException(status_code=500, detail=f"Error processing question: {error_msg[:100]}")
+
+
+# ==================== SITE SETTINGS (PERSONALIZATION) ENDPOINTS ====================
+
+# Get site settings (public)
+@api_router.get("/site-settings")
+async def get_site_settings():
+    try:
+        settings = await site_settings_collection.find_one({"id": "site_settings"})
+        if not settings:
+            # Return default settings if none exist
+            return {
+                "website_name": "BioMuseum",
+                "initiative_text": "An Initiative by",
+                "college_name": "SBES College of Science",
+                "department_name": "Zoology Department",
+                "logo_url": None
+            }
+        settings.pop("_id", None)
+        return settings
+    except Exception as e:
+        logging.error(f"Error fetching site settings: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+# Update site settings (admin only)
+@api_router.put("/admin/site-settings")
+async def update_site_settings(settings: SiteSettingsUpdate, _: bool = Depends(verify_admin_token)):
+    try:
+        update_data = settings.dict(exclude_unset=True)
+        update_data["updated_at"] = get_ist_now()
+        
+        result = await site_settings_collection.update_one(
+            {"id": "site_settings"},
+            {"$set": update_data},
+            upsert=True
+        )
+        
+        # Get and return updated settings
+        updated_settings = await site_settings_collection.find_one({"id": "site_settings"})
+        updated_settings.pop("_id", None)
+        return updated_settings
+    except Exception as e:
+        logging.error(f"Error updating site settings: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 app.include_router(api_router)

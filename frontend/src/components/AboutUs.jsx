@@ -1,18 +1,20 @@
 import React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { useNavigate } from 'react-router-dom';
+import { SiteContext } from '../contexts/SiteContext';
 
 const AboutUs = ({ isDark }) => {
   const navigate = useNavigate();
+  const { siteSettings } = React.useContext(SiteContext);
 
   return (
-    <div className={`flex flex-col min-h-screen ${isDark ? 'bg-gray-900' : 'bg-gray-50'}`}>
+    <div className={`flex flex-col min-h-screen ${isDark ? 'bg-gray-900' : 'bg-white'}`}>
       <Helmet>
-        <title>About BioMuseum - Learn Our Mission & Story</title>
-        <meta name="description" content="Discover the mission and story of BioMuseum. We're dedicated to making biology education interactive, engaging, and accessible to everyone." />
+        <title>About {siteSettings?.website_name || 'BioMuseum'} - Learn Our Mission & Story</title>
+        <meta name="description" content={`Discover the mission and story of ${siteSettings?.website_name || 'BioMuseum'}. We're dedicated to making biology education interactive, engaging, and accessible to everyone.`} />
         <meta name="keywords" content="about us, biology museum, education, science, mission, interactive learning" />
-        <meta property="og:title" content="About BioMuseum - Learn Our Mission" />
-        <meta property="og:description" content="Discover the mission and story of BioMuseum - making biology education interactive and accessible." />
+        <meta property="og:title" content={`About ${siteSettings?.website_name || 'BioMuseum'} - Learn Our Mission`} />
+        <meta property="og:description" content={`Discover the mission and story of ${siteSettings?.website_name || 'BioMuseum'} - making biology education interactive and accessible.`} />
         <meta property="og:url" content="https://biomuseumsbes.vercel.app/about" />
         <meta property="og:type" content="website" />
         <link rel="canonical" href="https://biomuseumsbes.vercel.app/about" />
@@ -20,7 +22,7 @@ const AboutUs = ({ isDark }) => {
           {JSON.stringify({
             "@context": "https://schema.org",
             "@type": "Organization",
-            "name": "BioMuseum",
+            "name": siteSettings?.website_name || "BioMuseum",
             "description": "Interactive biology museum and educational platform",
             "url": "https://biomuseumsbes.vercel.app",
             "contactPoint": {
@@ -34,7 +36,7 @@ const AboutUs = ({ isDark }) => {
       <header className={`${isDark ? 'bg-gray-800' : 'bg-gray-700'} shadow-lg sticky top-0 z-50`}>
         <div className="max-w-7xl mx-auto px-3 sm:px-4 py-3 sm:py-4">
           <div className="flex justify-between items-center">
-            <h1 className="text-lg sm:text-2xl font-bold text-yellow-400"><i className="fas fa-leaf mr-2"></i>BioMuseum</h1>
+            <h1 className="text-lg sm:text-2xl font-bold text-yellow-400"><i className="fas fa-leaf mr-2"></i>{siteSettings?.website_name || 'BioMuseum'}</h1>
             <button
               onClick={() => navigate('/')}
               className={`${isDark ? 'bg-gray-700 hover:bg-gray-600 text-gray-200' : 'bg-gray-600 hover:bg-gray-500 text-gray-200'} px-3 sm:px-4 py-2 rounded font-semibold text-xs sm:text-sm transition-all duration-200`}
@@ -52,7 +54,7 @@ const AboutUs = ({ isDark }) => {
           <div className={`${isDark ? 'bg-gray-800' : 'bg-white'} rounded-xl shadow-lg p-6 sm:p-8 md:p-12 mb-8`}>
             <div className="text-center mb-8 sm:mb-12">
               <h2 className={`text-2xl sm:text-3xl md:text-4xl font-bold mb-3 sm:mb-4 ${isDark ? 'text-white' : 'text-gray-800'}`}>
-                About BioMuseum
+                About {siteSettings?.website_name || 'BioMuseum'}
               </h2>
               <p className={`text-base sm:text-lg ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
                 Interactive Biology Museum
@@ -64,7 +66,7 @@ const AboutUs = ({ isDark }) => {
               <h3 className={`text-xl sm:text-2xl font-bold mb-3 sm:mb-4 ${isDark ? 'text-yellow-400' : 'text-gray-800'}`}>
                 Our Mission
               </h3>
-              <p className={`text-sm sm:text-base leading-relaxed ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+              <p className={`text-sm sm:text-base leading-relaxed ${isDark ? 'text-gray-300' : 'text-black'}`}>
                 Our World is Built on Biology and Once We Begin to Understand it, it Becomes a Technology
               </p>
             </div>
@@ -75,39 +77,39 @@ const AboutUs = ({ isDark }) => {
                 What We Offer
               </h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
-                <div className={`p-4 sm:p-6 rounded-lg ${isDark ? 'bg-gray-700' : 'bg-gray-100'}`}>
+                <div className={`p-4 sm:p-6 rounded-lg ${isDark ? 'bg-gray-700' : 'bg-white border border-gray-200'}`}>
                   <div className="text-2xl sm:text-3xl mb-3"><i className="fas fa-microscope"></i></div>
-                  <h4 className={`text-base sm:text-lg font-semibold mb-2 ${isDark ? 'text-white' : 'text-gray-800'}`}>
+                  <h4 className={`text-base sm:text-lg font-semibold mb-2 ${isDark ? 'text-white' : 'text-black'}`}>
                     Interactive Exploration
                   </h4>
-                  <p className={`text-xs sm:text-sm ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+                  <p className={`text-xs sm:text-sm ${isDark ? 'text-gray-400' : 'text-black'}`}>
                     Discover diverse organisms and learn about their fascinating characteristics through our interactive platform.
                   </p>
                 </div>
-                <div className={`p-4 sm:p-6 rounded-lg ${isDark ? 'bg-gray-700' : 'bg-gray-100'}`}>
+                <div className={`p-4 sm:p-6 rounded-lg ${isDark ? 'bg-gray-700' : 'bg-white border border-gray-200'}`}>
                   <div className="text-2xl sm:text-3xl mb-3"><i className="fas fa-book"></i></div>
-                  <h4 className={`text-base sm:text-lg font-semibold mb-2 ${isDark ? 'text-white' : 'text-gray-800'}`}>
+                  <h4 className={`text-base sm:text-lg font-semibold mb-2 ${isDark ? 'text-white' : 'text-black'}`}>
                     Educational Content
                   </h4>
-                  <p className={`text-xs sm:text-sm ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+                  <p className={`text-xs sm:text-sm ${isDark ? 'text-gray-400' : 'text-black'}`}>
                     Access comprehensive information about morphology, physiology, and characteristics of various organisms.
                   </p>
                 </div>
-                <div className={`p-4 sm:p-6 rounded-lg ${isDark ? 'bg-gray-700' : 'bg-gray-100'}`}>
+                <div className={`p-4 sm:p-6 rounded-lg ${isDark ? 'bg-gray-700' : 'bg-white border border-gray-200'}`}>
                   <div className="text-2xl sm:text-3xl mb-3"><i className="fas fa-video"></i></div>
-                  <h4 className={`text-base sm:text-lg font-semibold mb-2 ${isDark ? 'text-white' : 'text-gray-800'}`}>
+                  <h4 className={`text-base sm:text-lg font-semibold mb-2 ${isDark ? 'text-white' : 'text-black'}`}>
                     BioTube Videos
                   </h4>
-                  <p className={`text-xs sm:text-sm ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+                  <p className={`text-xs sm:text-sm ${isDark ? 'text-gray-400' : 'text-black'}`}>
                     Watch educational videos about various organisms and biological concepts from experts in the field.
                   </p>
                 </div>
-                <div className={`p-4 sm:p-6 rounded-lg ${isDark ? 'bg-gray-700' : 'bg-gray-100'}`}>
+                <div className={`p-4 sm:p-6 rounded-lg ${isDark ? 'bg-gray-700' : 'bg-white border border-gray-200'}`}>
                   <div className="text-2xl sm:text-3xl mb-3"><i className="fas fa-users"></i></div>
-                  <h4 className={`text-base sm:text-lg font-semibold mb-2 ${isDark ? 'text-white' : 'text-gray-800'}`}>
+                  <h4 className={`text-base sm:text-lg font-semibold mb-2 ${isDark ? 'text-white' : 'text-black'}`}>
                     Community Contribution
                   </h4>
-                  <p className={`text-xs sm:text-sm ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+                  <p className={`text-xs sm:text-sm ${isDark ? 'text-gray-400' : 'text-black'}`}>
                     Contribute your own organism discoveries and help build a comprehensive biological database.
                   </p>
                 </div>
@@ -182,11 +184,11 @@ const AboutUs = ({ isDark }) => {
               <h3 className={`text-xl sm:text-2xl font-bold mb-3 sm:mb-4 ${isDark ? 'text-yellow-400' : 'text-gray-800'}`}>
                 Created By
               </h3>
-              <div className={`${isDark ? 'bg-gray-700' : 'bg-gray-100'} p-4 sm:p-6 rounded-lg`}>
-                <p className={`text-base sm:text-lg font-semibold ${isDark ? 'text-white' : 'text-gray-800'}`}>
+              <div className={`${isDark ? 'bg-gray-700' : 'bg-white border border-gray-200'} p-4 sm:p-6 rounded-lg`}>
+                <p className={`text-base sm:text-lg font-semibold ${isDark ? 'text-white' : 'text-black'}`}>
                   Sarthak N. Kulkarni
                 </p>
-                <p className={`text-xs sm:text-sm mt-2 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+                <p className={`text-xs sm:text-sm mt-2 ${isDark ? 'text-gray-400' : 'text-black'}`}>
                   B.Sc First Year, Zoology Department<br />
                   SBES College of Science<br />
                   Chh. Sambhaji Nagar
