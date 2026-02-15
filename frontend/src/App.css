@@ -1,0 +1,790 @@
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap');
+
+.App {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+        'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+        sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+code {
+    font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+        monospace;
+}
+
+/* Custom utilities for better UX */
+.line-clamp-3 {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+/* QR Reader styling */
+.qr-reader {
+    max-width: 100%;
+}
+
+/* Smooth transitions */
+.transition-all {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Custom gradients */
+.bg-gradient-to-br {
+    background-image: linear-gradient(to bottom right, var(--tw-gradient-stops));
+}
+
+/* Loading spinner */
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+.animate-spin {
+    animation: spin 1s linear infinite;
+}
+
+/* Creative Loading Animation */
+@keyframes pulse-glow {
+    0%, 100% {
+        box-shadow: 0 0 20px rgba(16, 185, 129, 0.3);
+        transform: scale(1);
+    }
+    50% {
+        box-shadow: 0 0 40px rgba(16, 185, 129, 0.6);
+        transform: scale(1.05);
+    }
+}
+
+@keyframes float-bounce {
+    0%, 100% {
+        transform: translateY(0px);
+    }
+    50% {
+        transform: translateY(-20px);
+    }
+}
+
+@keyframes slide-in-up {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slide-out-down {
+    from {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    to {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+}
+
+@keyframes scale-in {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@keyframes scale-out {
+    from {
+        opacity: 1;
+        transform: scale(1);
+    }
+    to {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+}
+
+@keyframes rotate-spin {
+    from {
+        transform: rotate(0deg) scale(1);
+        opacity: 1;
+    }
+    to {
+        transform: rotate(360deg) scale(0.8);
+        opacity: 0;
+    }
+}
+
+@keyframes dna-helix {
+    0% {
+        transform: rotateX(0deg) rotateZ(0deg);
+    }
+    100% {
+        transform: rotateX(360deg) rotateZ(360deg);
+    }
+}
+
+@keyframes particle-float {
+    0% {
+        transform: translateY(0) translateX(0);
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(-100px) translateX(50px);
+        opacity: 0;
+    }
+}
+
+/* Loading Screen Animations */
+.loading-container {
+    animation: fade-in 0.5s ease-out;
+}
+
+.dna-spinner {
+    animation: dna-helix 2s linear infinite;
+    perspective: 1000px;
+}
+
+.pulse-glow {
+    animation: pulse-glow 2s ease-in-out infinite;
+}
+
+.float-bounce {
+    animation: float-bounce 2s ease-in-out infinite;
+}
+
+/* Modal/Card Animations */
+.slide-in {
+    animation: slide-in-up 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.slide-out {
+    animation: slide-out-down 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.scale-enter {
+    animation: scale-in 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.scale-exit {
+    animation: scale-out 0.3s ease-out;
+}
+
+.fade-in {
+    animation: fade-in 0.3s ease-out;
+}
+
+.fade-out {
+    animation: fade-out 0.3s ease-out;
+}
+
+@keyframes fade-in {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes fade-out {
+    from {
+        opacity: 1;
+    }
+    to {
+        opacity: 0;
+    }
+}
+
+/* Organism Card Open Animation */
+.organism-card-enter {
+    animation: scale-in 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.organism-card-exit {
+    animation: scale-out 0.3s ease-out;
+}
+
+/* Admin Panel Entry */
+.admin-panel-enter {
+    animation: slide-in-up 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.admin-panel-exit {
+    animation: slide-out-down 0.4s ease-out;
+}
+
+/* Particles Background Animation */
+.particle {
+    position: absolute;
+    pointer-events: none;
+}
+
+.particle-1 {
+    animation: particle-float 2s ease-out forwards;
+}
+
+.particle-2 {
+    animation: particle-float 2.5s ease-out 0.2s forwards;
+}
+
+.particle-3 {
+    animation: particle-float 2s ease-out 0.4s forwards;
+}
+
+/* Custom focus styles */
+.focus\:border-green-500:focus {
+    border-color: #10b981;
+}
+
+.focus\:border-blue-500:focus {
+    border-color: #3b82f6;
+}
+
+/* Hover effects */
+.hover\:shadow-xl:hover {
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+.hover\:border-green-300:hover {
+    border-color: #86efac;
+}
+
+/* Mobile responsiveness improvements */
+@media (max-width: 768px) {
+    .grid-cols-1 {
+        grid-template-columns: repeat(1, minmax(0, 1fr));
+    }
+    
+    .md\:grid-cols-2 {
+        grid-template-columns: repeat(1, minmax(0, 1fr));
+    }
+    
+    .md\:grid-cols-3 {
+        grid-template-columns: repeat(1, minmax(0, 1fr));
+    }
+}
+
+@media (min-width: 768px) {
+    .md\:grid-cols-2 {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    
+    .md\:grid-cols-3 {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (min-width: 1024px) {
+    .lg\:grid-cols-3 {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+}
+
+/* Custom button animations */
+button {
+    transform: translateY(0);
+    transition: all 0.2s ease-in-out;
+}
+
+button:hover {
+    transform: translateY(-1px);
+}
+
+button:active {
+    transform: translateY(0);
+}
+
+/* QR Scanner specific styles */
+.qr-scanner-container {
+    position: relative;
+    width: 100%;
+    max-width: 400px;
+    margin: 0 auto;
+}
+
+/* Loading states */
+.loading-shimmer {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+    0% {
+        background-position: -200% 0;
+    }
+    100% {
+        background-position: 200% 0;
+    }
+}
+
+/* Image gallery improvements */
+.image-gallery {
+    display: grid;
+    gap: 1rem;
+}
+
+.image-gallery img {
+    border-radius: 0.5rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease-in-out;
+}
+
+.image-gallery img:hover {
+    transform: scale(1.02);
+}
+
+/* Scientific name styling */
+.scientific-name {
+    font-style: italic;
+    color: #6b7280;
+    font-weight: 500;
+}
+
+/* Classification tags */
+.classification-tag {
+    background-color: #dcfce7;
+    color: #166534;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+/* Modal backdrop */
+.modal-backdrop {
+    background-color: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+}
+
+/* Form improvements */
+.form-input {
+    transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.form-input:focus {
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* Error and success states */
+.error-message {
+    background-color: #fef2f2;
+    border: 1px solid #fecaca;
+    color: #dc2626;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    margin-top: 1rem;
+}
+
+.success-message {
+    background-color: #f0fdf4;
+    border: 1px solid #bbf7d0;
+    color: #166534;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    margin-top: 1rem;
+}
+
+/* Print styles for QR codes */
+@media print {
+    .qr-code-print {
+        page-break-inside: avoid;
+        margin: 1in;
+    }
+    
+    .no-print {
+        display: none !important;
+    }
+}
+
+/* Google Sign-In Button Styling */
+.google-signin-button {
+    width: 100% !important;
+}
+
+.google-signin-button > div > div {
+    width: 100% !important;
+}
+
+.google-signin-button button {
+    width: 100% !important;
+    padding: 12px 16px !important;
+    height: auto !important;
+    min-height: 48px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 8px !important;
+    background: white !important;
+    border: 2px solid #e5e7eb !important;
+    border-radius: 8px !important;
+    transition: all 0.3s ease !important;
+}
+
+.google-signin-button button:hover {
+    border-color: #d1d5db !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Dark mode support */
+.dark .google-signin-button button {
+    background: #1f2937 !important;
+    border-color: #374151 !important;
+    color: white !important;
+}
+
+.dark .google-signin-button button:hover {
+    border-color: #4b5563 !important;
+}
+
+/* Google button text styling - make it bold and modern */
+.google-signin-button button span {
+    font-weight: 700 !important;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif !important;
+    font-size: 16px !important;
+    letter-spacing: 0.3px !important;
+    white-space: nowrap !important;
+}
+/* ===== NEW ANIMATIONS ===== */
+
+/* Hamburger Menu Animations */
+.hamburger-btn {
+    font-family: 'Poppins', sans-serif;
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 300ms cubic-bezier(0.34, 1.56, 0.64, 1);
+    transform: translateY(0);
+}
+
+.hamburger-btn:hover {
+    font-size: 14px;
+    transform: scale(0.98) translateY(-1px);
+}
+
+.hamburger-btn:active {
+    transform: scale(0.96);
+}
+
+/* Hamburger Icon Morph Animation */
+@keyframes hamburger-rotate {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(90deg);
+    }
+}
+
+@keyframes hamburger-reset {
+    from {
+        transform: rotate(90deg);
+    }
+    to {
+        transform: rotate(0deg);
+    }
+}
+
+.hamburger-btn.active {
+    animation: hamburger-rotate 400ms cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+.hamburger-btn.inactive {
+    animation: hamburger-reset 400ms cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+/* Sidebar Menu Slide-In Animation */
+@keyframes sidebar-slide-in {
+    from {
+        opacity: 0;
+        transform: translateX(100%);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes sidebar-slide-out {
+    from {
+        opacity: 1;
+        transform: translateX(0);
+    }
+    to {
+        opacity: 0;
+        transform: translateX(100%);
+    }
+}
+
+@keyframes backdrop-fade-in {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes backdrop-fade-out {
+    from {
+        opacity: 1;
+    }
+    to {
+        opacity: 0;
+    }
+}
+
+.sidebar-enter {
+    animation: sidebar-slide-in 400ms cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+.sidebar-exit {
+    animation: sidebar-slide-out 300ms cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+.backdrop-fade {
+    animation: backdrop-fade-in 300ms ease-out forwards;
+}
+
+/* Menu Item Staggered Animation */
+@keyframes menu-item-enter {
+    from {
+        opacity: 0;
+        transform: translateX(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.menu-item {
+    font-family: 'Poppins', sans-serif;
+    animation: menu-item-enter 400ms cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+.menu-item:nth-child(1) { animation-delay: 50ms; }
+.menu-item:nth-child(2) { animation-delay: 100ms; }
+.menu-item:nth-child(3) { animation-delay: 150ms; }
+.menu-item:nth-child(4) { animation-delay: 200ms; }
+.menu-item:nth-child(5) { animation-delay: 250ms; }
+
+/* Button Animations & Transitions */
+.btn-primary {
+    font-family: 'Poppins', sans-serif;
+    transition: all 300ms cubic-bezier(0.4, 0, 0.2, 1);
+    transform: translateY(0) scale(1);
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px) scale(1.01);
+    font-size: 15px;
+}
+
+.btn-primary:active {
+    transform: translateY(0) scale(0.99);
+}
+
+/* Explore Button Animation */
+@keyframes explore-expand {
+    from {
+        opacity: 0;
+        transform: scale(0.8);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@keyframes explore-pulse {
+    0%, 100% {
+        box-shadow: 0 0 0 0 rgba(20, 184, 166, 0.7);
+    }
+    50% {
+        box-shadow: 0 0 0 10px rgba(20, 184, 166, 0);
+    }
+}
+
+.btn-explore {
+    font-family: 'Poppins', sans-serif;
+    animation: explore-expand 400ms cubic-bezier(0.34, 1.56, 0.64, 1);
+    transition: all 300ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btn-explore:hover {
+    animation: explore-pulse 1.5s infinite;
+    transform: scale(1.05);
+    font-size: 15px;
+}
+
+.btn-explore:active {
+    transform: scale(0.98);
+}
+
+/* Organism Card Opening Animation */
+@keyframes organism-enter {
+    from {
+        opacity: 0;
+        transform: scale(0.3);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@keyframes organism-content-slide {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes organism-image-zoom {
+    from {
+        transform: scale(1);
+    }
+    to {
+        transform: scale(1.05);
+    }
+}
+
+.organism-modal {
+    animation: organism-enter 500ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.organism-content {
+    animation: organism-content-slide 600ms cubic-bezier(0.34, 1.56, 0.64, 1) 100ms forwards;
+    opacity: 0;
+}
+
+.organism-image {
+    animation: organism-image-zoom 800ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* BioTube Button Animation */
+@keyframes biotube-spin {
+    from {
+        transform: rotate(0deg) scale(0.9);
+        opacity: 0;
+    }
+    to {
+        transform: rotate(360deg) scale(1);
+        opacity: 1;
+    }
+}
+
+@keyframes biotube-glow {
+    0%, 100% {
+        text-shadow: 0 0 5px rgba(251, 191, 36, 0.5);
+    }
+    50% {
+        text-shadow: 0 0 20px rgba(251, 191, 36, 0.8);
+    }
+}
+
+.btn-biotube {
+    font-family: 'Poppins', sans-serif;
+    animation: biotube-spin 600ms cubic-bezier(0.34, 1.56, 0.64, 1);
+    transition: all 300ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btn-biotube:hover {
+    animation: biotube-glow 1.5s infinite, biotube-spin 0.6s forwards;
+    transform: scale(1.05);
+    font-size: 15px;
+}
+
+.btn-biotube:active {
+    transform: scale(0.98);
+}
+
+/* General Button Hover Effects */
+.button-group button {
+    font-family: 'Poppins', sans-serif;
+    transition: all 300ms cubic-bezier(0.4, 0, 0.2, 1);
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.button-group button:hover {
+    font-size: 14.5px;
+    transform: translateY(-1px) scale(0.99);
+}
+
+.button-group button:active {
+    transform: translateY(0) scale(0.97);
+}
+
+/* Card Hover Parallax */
+@keyframes card-lift {
+    to {
+        transform: translateY(-5px);
+    }
+}
+
+.card-hover {
+    transition: all 300ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.card-hover:hover {
+    animation: card-lift 300ms forwards;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2);
+}
+
+/* Poppins Font for Menu Items */
+.menu-text {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 500;
+    letter-spacing: 0.3px;
+}
+
+/* Smooth Color Transitions */
+.color-transition {
+    transition: color 300ms ease, background-color 300ms ease, border-color 300ms ease;
+}
+
+/* Button Alignment */
+.button-row {
+    display: flex;
+    gap: 12px;
+    flex-wrap: nowrap;
+    align-items: center;
+    justify-content: center;
+}
+
+.button-row button {
+    flex: 0 1 auto;
+    min-width: fit-content;
+}
+
+@media (max-width: 640px) {
+    .button-row {
+        gap: 8px;
+    }
+    
+    .button-row button {
+        padding-left: 12px !important;
+        padding-right: 12px !important;
+        font-size: 13px !important;
+    }
+}

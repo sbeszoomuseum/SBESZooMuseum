@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /api/
+Disallow: /.git
+Disallow: /node_modules
+
+Sitemap: https://biomuseumsbes.vercel.app/sitemap.xml
