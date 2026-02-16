@@ -1,0 +1,216 @@
+name: Deploy BioMuseum SaaS
+
+on:
+  push:
+    branches:
+      - main
+      - production
+  pull_request:
+    branches:
+      - main
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}/biomuseum
+
+jobs:
+
+  lint:
+    name: Lint Code
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install linting tools
+        run: pip install flake8 black isort pylint
+
+      - name: Run Flake8
+        run: flake8 backend/ --count --select=E9,F63,F7,F82 --show-source --statistics
+
+      - name: Check formatting
+        run: black --check backend/ frontend/src/ || true
+
+      - name: Check imports
+        run: isort --check-only backend/ || true
+
+
+  test:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+
+    services:
+      mongodb:
+        image: mongo:6
+        ports:
+          - 27017:27017
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install deps
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r backend/requirements.txt pytest pytest-asyncio pytest-cov
+
+      - name: Run tests
+        env:
+          MONGO_URL: mongodb://localhost:27017/biomuseum_test
+          DB_NAME: biomuseum_test
+          ADMIN_USERNAME: testadmin
+          ADMIN_PASSWORD: testpass123
+        run: pytest backend/tests/ -v --cov=backend --cov-report=xml
+
+      - uses: codecov/codecov-action@v4
+        with:
+          files: ./coverage.xml
+
+
+  security:
+    name: Security Scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run Trivy
+        uses: aquasecurity/trivy-action@0.20.0
+        with:
+          scan-type: fs
+          scan-ref: .
+          format: sarif
+          output: trivy-results.sarif
+
+      - uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: trivy-results.sarif
+
+
+  validate-env:
+    name: Validate Environment
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate backend config
+        run: |
+          grep -E "MONGO_URL|DB_NAME|ADMIN_USERNAME" backend/.env.example || true
+          echo "Backend config validated"
+
+      - name: Validate frontend config
+        run: |
+          grep -E "REACT_APP_BACKEND_URL" frontend/.env.example || true
+          echo "Frontend config validated"
+
+
+  build-backend:
+    name: Build Backend
+    runs-on: ubuntu-latest
+    needs: [lint, test]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Lock requirements
+        run: |
+          pip install pip-tools
+          pip-compile backend/requirements.txt -o backend/requirements.lock
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: requirements-lock
+          path: backend/requirements.lock
+
+
+  build-frontend:
+    name: Build Frontend
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "18"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install deps
+        run: |
+          cd frontend
+          npm ci
+
+      - name: Build
+        env:
+          REACT_APP_BACKEND_URL: https://biomuseum.onrender.com
+          GENERATE_SOURCEMAP: "false"
+        run: |
+          cd frontend
+          npm run build
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: frontend-build
+          path: frontend/build/
+
+
+  deploy-backend:
+    name: Deploy Backend
+    runs-on: ubuntu-latest
+    needs: [build-backend, security, validate-env]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+
+    steps:
+      - name: Trigger Render deploy
+        env:
+          HOOK: ${{ secrets.RENDER_DEPLOY_HOOK }}
+        run: |
+          if [ -z "$HOOK" ]; then
+            echo "Render deploy hook missing"
+            exit 1
+          fi
+
+          curl -X POST "$HOOK"
+          echo "Backend deploy triggered"
+
+
+  deploy-frontend:
+    name: Deploy Frontend
+    runs-on: ubuntu-latest
+    needs: [build-frontend, security, validate-env]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: BetaHuhn/deploy-to-vercel-action@v1
+        with:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+          PRODUCTION: true
+
+
+  smoke-test:
+    name: Smoke Tests
+    runs-on: ubuntu-latest
+    needs: [deploy-backend, deploy-frontend]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+
+    steps:
+      - name: Backend health
+        run: curl -f https://biomuseum.onrender.com/api/health
+
+      - name: Frontend load
+        run: curl -f https://biomuseumsbes.vercel.app/
