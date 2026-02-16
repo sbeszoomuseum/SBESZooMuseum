@@ -70,7 +70,7 @@ const AdvancedSearch = ({ isDark }) => {
         {/* Header */}
         <div className="mb-8">
           <h1 className={`text-3xl sm:text-4xl font-bold ${isDark ? 'text-white' : 'text-gray-900'} mb-2`}>
-            <i className="fas fa-search mr-2 text-blue-500"></i>Advanced Search
+            <i className="fa-solid fa-search mr-2 text-blue-500"></i>Advanced Search
           </h1>
           <p className={isDark ? 'text-gray-400' : 'text-gray-600'}>
             Search organisms by multiple criteria
@@ -188,7 +188,7 @@ const AdvancedSearch = ({ isDark }) => {
                 onClick={handleSearch}
                 className="flex-1 bg-purple-600 hover:bg-purple-700 text-white font-semibold py-2 rounded-lg transition"
               >
-                <i className="fas fa-search mr-1"></i>Search
+                <i className="fa-solid fa-search mr-1"></i>Search
               </button>
               <button
                 onClick={clearFilters}

@@ -32,7 +32,7 @@ const Leaderboard = ({ isDark }) => {
       '10_submissions': { class: 'fa-star', color: 'text-yellow-400' },
       '25_submissions': { class: 'fa-star', color: 'text-yellow-400' },
       '50_submissions': { class: 'fa-crown', color: 'text-purple-500' },
-      'verified_master': { class: 'fa-check-circle', color: 'text-green-500' },
+      'verified_master': { class: 'fa-circle-check', color: 'text-green-500' },
       '100_points': { class: 'fa-gem', color: 'text-blue-500' },
       '500_points': { class: 'fa-brain', color: 'text-pink-500' }
     };
@@ -57,7 +57,7 @@ const Leaderboard = ({ isDark }) => {
         {/* Header */}
         <div className="text-center mb-8">
           <h1 className={`text-3xl sm:text-4xl font-bold ${isDark ? 'text-white' : 'text-gray-900'} mb-2`}>
-            <i className="fas fa-trophy text-yellow-500 mr-2"></i>Leaderboard
+            <i className="fa-solid fa-trophy text-yellow-500 mr-2"></i>Leaderboard
           </h1>
           <p className={isDark ? 'text-gray-400' : 'text-gray-600'}>
             Top contributors to BioMuseum
@@ -67,9 +67,9 @@ const Leaderboard = ({ isDark }) => {
         {/* Filter Buttons */}
         <div className="flex gap-2 mb-6 overflow-x-auto pb-2">
           {[
-            { id: 'points', label: <><i className="fas fa-star mr-1"></i>Points</> },
-            { id: 'submissions', label: <><i className="fas fa-file-alt mr-1"></i>Submissions</> },
-            { id: 'verified', label: <><i className="fas fa-check-circle mr-1"></i>Verified</> }
+            { id: 'points', label: <><i className="fa-solid fa-star mr-1"></i>Points</> },
+            { id: 'submissions', label: <><i className="fa-solid fa-list mr-1"></i>Submissions</> },
+            { id: 'verified', label: <><i className="fa-solid fa-circle-check mr-1"></i>Verified</> }
           ].map(btn => (
             <button
               key={btn.id}
@@ -106,7 +106,7 @@ const Leaderboard = ({ isDark }) => {
                   <div className={`font-bold text-lg w-8 ${
                     index < 3 ? 'text-yellow-400' : isDark ? 'text-gray-400' : 'text-gray-600'
                   }`}>
-                    {index === 0 ? <i className="fas fa-medal text-yellow-400 text-xl"></i> : index === 1 ? <i className="fas fa-medal text-gray-400 text-xl"></i> : index === 2 ? <i className="fas fa-medal text-orange-400 text-xl"></i> : <span>{index + 1}</span>}
+                    {index === 0 ? <i className="fa-solid fa-medal text-yellow-400 text-xl"></i> : index === 1 ? <i className="fa-solid fa-medal text-gray-400 text-xl"></i> : index === 2 ? <i className="fa-solid fa-medal text-orange-400 text-xl"></i> : <span>{index + 1}</span>}
                   </div>
 
                   {/* User Info */}
@@ -141,7 +141,7 @@ const Leaderboard = ({ isDark }) => {
         {/* Badges Section */}
         <div className={`mt-8 rounded-lg p-6 ${isDark ? 'bg-gray-800' : 'bg-white'} shadow-lg`}>
           <h2 className={`text-2xl font-bold mb-4 ${isDark ? 'text-white' : 'text-gray-900'}`}>
-            <i className="fas fa-award text-purple-500 mr-2"></i>Available Badges
+            <i className="fa-solid fa-award text-purple-500 mr-2"></i>Available Badges
           </h2>
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
             {[

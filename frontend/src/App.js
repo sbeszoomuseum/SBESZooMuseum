@@ -24,7 +24,7 @@ const BACKEND_URL = (() => {
   // IMPORTANT: During development, always use localhost:8000
   // Check if this is development (not built)
   if (process.env.NODE_ENV === 'development') {
-    console.log('🔧 Development mode - Using backend at http://localhost:8000');
+    console.log('Development mode - Using backend at http://localhost:8000');
     return 'http://localhost:8000';
   }
   
@@ -48,7 +48,7 @@ const BACKEND_URL = (() => {
 })();
 
 const API = `${BACKEND_URL}/api`;
-console.log('🔌 API Base URL:', API);
+console.log('API Base URL:', API);
 
 // Configure axios with longer timeout
 axios.defaults.timeout = 30000; // 30 seconds for long operations
@@ -144,6 +144,72 @@ const Homepage = () => {
     fetchOrganisms();
   }, []);
 
+  // Apply custom colors and fonts from siteSettings
+  useEffect(() => {
+    if (!siteSettings || Object.keys(siteSettings).length === 0) {
+      console.log('⏳ Waiting for siteSettings to load...');
+      return;
+    }
+
+    console.log('🎨 Applying custom colors and fonts:', siteSettings);
+
+    // Load Google Fonts if font_url is provided
+    if (siteSettings.font_url) {
+      console.log('📝 Loading font from URL:', siteSettings.font_url);
+      let fontLink = document.querySelector('link[data-custom-font="true"]');
+      if (fontLink) {
+        fontLink.href = siteSettings.font_url;
+      } else {
+        const link = document.createElement('link');
+        link.href = siteSettings.font_url;
+        link.rel = 'stylesheet';
+        link.setAttribute('data-custom-font', 'true');
+        link.onerror = () => console.error('❌ Failed to load font');
+        link.onload = () => console.log('✅ Font loaded successfully');
+        document.head.appendChild(link);
+      }
+    }
+
+    // Inject CSS variables for colors and fonts
+    const primaryColor = siteSettings.primary_color || '#7c3aed';
+    const secondaryColor = siteSettings.secondary_color || '#3b82f6';
+    const fontFamily = siteSettings.font_family ? `"${siteSettings.font_family}", system-ui, sans-serif` : 'Poppins, system-ui, sans-serif';
+
+    console.log('🎯 Colors:', { primaryColor, secondaryColor, fontFamily });
+
+    const styleId = 'custom-theme-styles';
+    let styleElement = document.getElementById(styleId);
+    
+    if (!styleElement) {
+      styleElement = document.createElement('style');
+      styleElement.id = styleId;
+      document.head.appendChild(styleElement);
+    }
+
+    styleElement.innerHTML = `
+      :root {
+        --primary-color: ${primaryColor} !important;
+        --secondary-color: ${secondaryColor} !important;
+        --custom-font-family: ${fontFamily} !important;
+      }
+      
+      body, html, #root {
+        font-family: ${fontFamily} !important;
+      }
+      
+      * {
+        --tw-text-opacity: 1;
+      }
+    `;
+
+    // Also apply to Tailwind-styled elements
+    document.documentElement.style.setProperty('--primary-color', primaryColor, 'important');
+    document.documentElement.style.setProperty('--secondary-color', secondaryColor, 'important');
+    document.documentElement.style.setProperty('--custom-font-family', fontFamily, 'important');
+    
+    console.log('✅ Styles applied successfully');
+  }, [siteSettings]);
+
   const fetchOrganisms = async () => {
     try {
       const response = await axios.get(`${API}/organisms`);
@@ -180,10 +246,10 @@ const Homepage = () => {
       const response = await axios.post(`${API}/admin/login`, { username, password });
       login(response.data.access_token);
       setShowAdminLogin(false);
-      showToast('✅ Welcome Admin! Login successful', 'success', 2500);
+      showToast('Welcome Admin! Login successful', 'success', 2500);
       navigate('/admin');
     } catch (error) {
-      showToast('❌ Invalid credentials', 'error', 3000);
+      showToast('Invalid credentials', 'error', 3000);
     } finally {
       setLoginLoading(false);
     }
@@ -199,7 +265,7 @@ const Homepage = () => {
       if (response.data.success) {
         login(response.data.access_token);
         setShowAdminLogin(false);
-        showToast(`✅ Welcome ${response.data.email}!`, 'success', 2500);
+        showToast(`Welcome ${response.data.email}!`, 'success', 2500);
         setTimeout(() => navigate('/admin'), 500);
       }
     } catch (error) {
@@ -211,7 +277,7 @@ const Homepage = () => {
       } else if (error.message) {
         errorMsg = error.message;
       }
-      showToast(`❌ ${errorMsg}`, 'error', 3000);
+      showToast(`${errorMsg}`, 'error', 3000);
     } finally {
       setLoginLoading(false);
     }
@@ -226,7 +292,7 @@ const Homepage = () => {
         login(response.data.access_token);
         setShowAdminLogin(false);
         const adminName = response.data.name || response.data.email;
-        showToast(`✅ Welcome ${adminName}!`, 'success', 2500);
+        showToast(`Welcome ${adminName}!`, 'success', 2500);
         setTimeout(() => navigate('/admin'), 500);
       }
     } catch (error) {
@@ -238,7 +304,7 @@ const Homepage = () => {
       } else if (error.message) {
         errorMsg = error.message;
       }
-      showToast(`❌ ${errorMsg}`, 'error', 3000);
+      showToast(`${errorMsg}`, 'error', 3000);
     } finally {
       setLoginLoading(false);
     }
@@ -269,24 +335,46 @@ const Homepage = () => {
   return (
     <div className={`flex flex-col min-h-screen ${isDark ? 'bg-gray-900' : 'bg-white'}`}>
       {/* Navbar */}
-      <header className={`${isDark ? 'bg-gray-800' : 'bg-gray-700'} shadow-lg sticky top-0 z-50`}>
+      <header 
+        className={`shadow-lg sticky top-0 z-50`}
+        style={{
+          backgroundColor: siteSettings?.primary_color || '#3b4556',
+          fontFamily: siteSettings?.font_family || 'Poppins, system-ui, sans-serif'
+        }}
+      >
         <div className="max-w-7xl mx-auto px-3 sm:px-4 py-3 sm:py-4">
           <div className="flex justify-between items-center">
             <div className="text-left">
-              <h1 className="text-lg sm:text-2xl font-bold text-yellow-400"> {siteSettings?.website_name || 'BioMuseum'}</h1>
+              <h1 
+                className="text-lg sm:text-2xl font-bold text-white"
+                style={{
+                  color: siteSettings?.secondary_color || '#fbbf24',
+                  fontFamily: siteSettings?.font_family || 'Poppins, system-ui, sans-serif'
+                }}
+              >
+                {siteSettings?.website_name || 'BioMuseum'}
+              </h1>
             </div>
             <div className="flex gap-2 sm:gap-3 items-center">
               <button
                 onClick={toggleTheme}
-                className={`${isDark ? 'bg-gray-700 hover:bg-gray-600 text-yellow-400' : 'bg-gray-600 hover:bg-gray-500 text-gray-200'} px-3 sm:px-4 py-2 rounded font-semibold text-xs sm:text-sm transition-all duration-200 flex items-center gap-1 sm:gap-2`}
+                className={`px-3 sm:px-4 py-2 rounded font-semibold text-xs sm:text-sm transition-all duration-200 flex items-center gap-1 sm:gap-2`}
+                style={{
+                  backgroundColor: isDark ? '#374151' : '#4b5563',
+                  color: siteSettings?.secondary_color || '#fbbf24'
+                }}
               >
-                <i className={`fas ${isDark ? 'fa-sun' : 'fa-moon'}`}></i> <span className="hidden sm:inline">{isDark ? 'Light' : 'Dark'}</span>
+                <i className={`fa-solid ${isDark ? 'fa-sun' : 'fa-moon'}`}></i>
               </button>
               <button
                 onClick={() => setShowMenu(!showMenu)}
-                className={`hamburger-btn ${isDark ? 'bg-gray-700 hover:bg-gray-600 text-gray-200' : 'bg-gray-600 hover:bg-gray-500 text-gray-200'} px-3 sm:px-4 py-2 rounded font-semibold text-xs sm:text-sm transition-all duration-300 ${showMenu ? 'active' : ''}`}
+                className={`hamburger-btn px-3 sm:px-4 py-2 rounded font-semibold text-xs sm:text-sm transition-all duration-300 ${showMenu ? 'active' : ''}`}
+                style={{
+                  backgroundColor: isDark ? '#374151' : '#4b5563',
+                  color: '#e5e7eb'
+                }}
               >
-                ☰
+                <i className="fa-solid fa-bars"></i>
               </button>
             </div>
           </div>
@@ -311,6 +399,35 @@ const Homepage = () => {
         
         {/* Content Container */}
         <div className="relative z-10 w-full h-full flex flex-col items-center justify-center px-4 sm:px-6 py-12 sm:py-16">
+          {/* Logo Display - Top */}
+          {siteSettings?.logo_url && (
+            <div className="flex justify-center mb-8">
+              <img
+                src={siteSettings.logo_url}
+                alt="Institution Logo"
+                className="h-24 sm:h-32 md:h-40 object-contain drop-shadow-xl"
+              />
+            </div>
+          )}
+          
+          {/* Initiative Text */}
+          <p className="text-xs sm:text-sm font-semibold mb-3 tracking-wide text-white drop-shadow-lg">
+            {siteSettings?.initiative_text || 'AN INITIATIVE BY'}
+          </p>
+          
+          {/* College Name */}
+          <h2 className="text-2xl sm:text-3xl font-bold mb-2 text-white text-center drop-shadow-lg">
+            {siteSettings?.college_name || 'S.B.E.S. COLLEGE OF SCIENCE'}
+          </h2>
+          
+          {/* Department Name */}
+          <p className="text-xs sm:text-sm font-semibold mb-8 tracking-wide text-white drop-shadow-lg">
+            {siteSettings?.department_name || 'DEPARTMENT OF ZOOLOGY | ZOOLOGICAL MUSEUM'}
+          </p>
+          
+          {/* Divider Line */}
+          <div className="w-full max-w-md h-px bg-white mb-8 opacity-80"></div>
+          
           {/* Title */}
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white text-center mb-6 leading-tight drop-shadow-lg max-w-4xl">
             {siteSettings?.website_name || 'BioMuseum'} - A Journey Through Living Wonders
@@ -320,32 +437,24 @@ const Homepage = () => {
           <p className="text-sm sm:text-base lg:text-lg text-white text-center mb-8 drop-shadow-md max-w-3xl leading-relaxed">
             Discover the wonders of life science through our interactive biology museum. Learn about diverse organisms and their fascinating characteristics from {siteSettings?.college_name || 'SBES College of Science'}.
           </p>
-          
-          {/* Divider Line */}
-          <div className="w-full max-w-md h-px bg-white mb-8 opacity-80"></div>
-          
-          {/* Institution Branding */}
-          <div className="text-center text-white drop-shadow-lg">
-            <p className="text-xs sm:text-sm font-semibold mb-2 tracking-wide">
-              {siteSettings?.initiative_text || 'AN INITIATIVE BY'}
-            </p>
-            <h2 className="text-2xl sm:text-3xl font-bold mb-3">
-              {siteSettings?.college_name || 'S.B.E.S. COLLEGE OF SCIENCE'}
-            </h2>
-            <p className="text-xs sm:text-sm font-semibold tracking-wide mb-6">
-              {siteSettings?.department_name || 'DEPARTMENT OF ZOOLOGY | ZOOLOGICAL MUSEUM'}
-            </p>
-            {/* Logo Display */}
-            {siteSettings?.logo_url && (
-              <div className="flex justify-center">
-                <img
-                  src={siteSettings.logo_url}
-                  alt="Institution Logo"
-                  className="h-32 sm:h-40 md:h-48 object-contain drop-shadow-xl"
-                />
-              </div>
-            )}
-          </div>
+
+          {/* Explore Button */}
+          <button
+            onClick={() => navigate('/organisms')}
+            className="px-8 sm:px-10 py-3 sm:py-4 text-black font-bold rounded-lg transition-all duration-300 ease-out transform hover:scale-105 hover:shadow-2xl active:scale-95"
+            style={{
+              backgroundColor: isDark ? '#f3f4f6' : '#ffffff',
+              boxShadow: isDark ? '0 4px 20px rgba(243, 244, 246, 0.4)' : '0 4px 20px rgba(0, 0, 0, 0.2)'
+            }}
+            onMouseEnter={(e) => {
+              e.target.style.backgroundColor = isDark ? '#e5e7eb' : '#f0f0f0';
+            }}
+            onMouseLeave={(e) => {
+              e.target.style.backgroundColor = isDark ? '#f3f4f6' : '#ffffff';
+            }}
+          >
+            <i className="fa-solid fa-compass mr-2"></i>Explore
+          </button>
         </div>
       </div>
 
@@ -387,7 +496,7 @@ const Homepage = () => {
                     }}
                     className="menu-text w-full text-left text-white hover:text-yellow-400 py-3 px-4 rounded-lg hover:bg-gray-700 transition-all duration-300 flex items-center gap-3 text-lg"
                   >
-                    <i className="fas fa-binoculars"></i>
+                    <i className="fa-solid fa-binoculars"></i>
                     <span>Explore</span>
                   </button>
                 </li>
@@ -399,7 +508,7 @@ const Homepage = () => {
                     }}
                     className="menu-text w-full text-left text-white hover:text-yellow-400 py-3 px-4 rounded-lg hover:bg-gray-700 transition-all duration-300 flex items-center gap-3 text-lg"
                   >
-                    <i className="fas fa-video"></i>
+                    <i className="fa-solid fa-video"></i>
                     <span>BioTube</span>
                   </button>
                 </li>
@@ -411,7 +520,7 @@ const Homepage = () => {
                     }}
                     className="menu-text w-full text-left text-white hover:text-yellow-400 py-3 px-4 rounded-lg hover:bg-gray-700 transition-all duration-300 flex items-center gap-3 text-lg"
                   >
-                    <i className="fas fa-lightbulb"></i>
+                    <i className="fa-solid fa-lightbulb"></i>
                     <span>Suggest Species</span>
                   </button>
                 </li>
@@ -423,7 +532,7 @@ const Homepage = () => {
                     }}
                     className="menu-text w-full text-left text-white hover:text-yellow-400 py-3 px-4 rounded-lg hover:bg-gray-700 transition-all duration-300 flex items-center gap-3 text-lg"
                   >
-                    <i className="fas fa-shield-alt"></i>
+                    <i className="fa-solid fa-shield"></i>
                     <span>Admin Login</span>
                   </button>
                 </li>
@@ -435,7 +544,7 @@ const Homepage = () => {
                     }}
                     className="menu-text w-full text-left text-white hover:text-yellow-400 py-3 px-4 rounded-lg hover:bg-gray-700 transition-all duration-300 flex items-center gap-3 text-lg"
                   >
-                    <i className="fas fa-info-circle"></i>
+                    <i className="fa-solid fa-circle-info"></i>
                     <span>About Us</span>
                   </button>
                 </li>
@@ -447,7 +556,7 @@ const Homepage = () => {
                     }}
                     className="menu-text w-full text-left text-white hover:text-yellow-400 py-3 px-4 rounded-lg hover:bg-gray-700 transition-all duration-300 flex items-center gap-3 text-lg"
                   >
-                    <i className="fas fa-book"></i>
+                    <i className="fa-solid fa-book"></i>
                     <span>Blog</span>
                   </button>
                 </li>
@@ -481,7 +590,7 @@ const Homepage = () => {
             <form onSubmit={handleAdminLogin}>
               <div className="mb-4 sm:mb-5">
                 <label className={`block text-sm font-bold mb-2 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
-                  <i className="fas fa-user mr-2 text-green-600"></i>Username
+                  <i className="fa-solid fa-user mr-2 text-green-600"></i>Username
                 </label>
                 <input
                   type="text"
@@ -493,7 +602,7 @@ const Homepage = () => {
               </div>
               <div className="mb-6 sm:mb-8">
                 <label className={`block text-sm font-bold mb-2 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
-                  <i className="fas fa-lock mr-2 text-green-600"></i>Password
+                  <i className="fa-solid fa-lock mr-2 text-green-600"></i>Password
                 </label>
                 <input
                   type="password"
@@ -509,14 +618,14 @@ const Homepage = () => {
                   onClick={() => setShowAdminLogin(false)}
                   className={`flex-1 ${isDark ? 'bg-gray-700 hover:bg-gray-600' : 'bg-gray-500 hover:bg-gray-600'} text-white py-2.5 rounded-lg font-semibold transition-all duration-200 text-sm sm:text-base`}
                 >
-                  <i className="fas fa-times mr-1"></i>Cancel
+                  <i className="fa-solid fa-xmark mr-1"></i>Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={loginLoading}
                   className="flex-1 bg-green-600 hover:bg-green-700 active:bg-green-800 text-white py-2.5 rounded-lg font-semibold transition-all duration-200 text-sm sm:text-base shadow-md hover:shadow-lg disabled:opacity-50"
                 >
-                  {loginLoading ? 'Logging in...' : <><i className="fas fa-sign-in-alt mr-1"></i>Login</>}
+                  {loginLoading ? 'Logging in...' : <><i className="fa-solid fa-arrow-right-to-bracket mr-1"></i>Login</>}
                 </button>
               </div>
               <div className="mt-4 pt-4 border-t border-gray-300 dark:border-gray-600">
@@ -626,6 +735,7 @@ const OrganismDetail = () => {
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   const { isDark, toggleTheme } = React.useContext(ThemeContext);
+  const { siteSettings } = React.useContext(SiteContext);
 
   useEffect(() => {
     fetchOrganism();
@@ -671,6 +781,51 @@ const OrganismDetail = () => {
 
   return (
     <div className={`min-h-screen ${isDark ? 'bg-gray-900' : 'bg-gradient-to-br from-green-50 to-blue-50'}`}>
+      {/* Navbar */}
+      <header 
+        className={`shadow-lg sticky top-0 z-50`}
+        style={{
+          backgroundColor: siteSettings?.primary_color || '#3b4556',
+          fontFamily: siteSettings?.font_family || 'Poppins, system-ui, sans-serif'
+        }}
+      >
+        <div className="max-w-7xl mx-auto px-3 sm:px-4 py-3 sm:py-4">
+          <div className="flex justify-between items-center">
+            <h1 
+              className="text-lg sm:text-2xl font-bold text-white"
+              style={{
+                color: siteSettings?.secondary_color || '#fbbf24',
+                fontFamily: siteSettings?.font_family || 'Poppins, system-ui, sans-serif'
+              }}
+            >
+              {siteSettings?.website_name || 'BioMuseum'}
+            </h1>
+            <div className="flex gap-2 sm:gap-3 items-center">
+              <button
+                onClick={toggleTheme}
+                className={`px-3 sm:px-4 py-2 rounded font-semibold text-xs sm:text-sm transition-all duration-200 flex items-center gap-1 sm:gap-2`}
+                style={{
+                  backgroundColor: isDark ? '#374151' : '#4b5563',
+                  color: siteSettings?.secondary_color || '#fbbf24'
+                }}
+              >
+                <i className={`fa-solid ${isDark ? 'fa-sun' : 'fa-moon'}`}></i>
+              </button>
+              <button
+                onClick={() => navigate('/')}
+                className={`px-3 sm:px-4 py-2 rounded font-semibold text-xs sm:text-sm transition-all`}
+                style={{
+                  backgroundColor: isDark ? '#374151' : '#4b5563',
+                  color: '#e5e7eb'
+                }}
+              >
+                <i className="fa-solid fa-house"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </header>
+
       <div className="max-w-6xl mx-auto px-3 sm:px-4 py-2 sm:py-4">
         <button
           onClick={() => navigate('/')}
@@ -691,7 +846,7 @@ const OrganismDetail = () => {
             <div>
               {organism.images && organism.images.length > 0 && (
                 <div className="mb-6">
-                  <h3 className={`text-lg sm:text-xl font-semibold mb-4 ${isDark ? 'text-white' : 'text-gray-800'}`}><i className="fa-regular fa-camera"></i> Images</h3>
+                  <h3 className={`text-lg sm:text-xl font-semibold mb-4 ${isDark ? 'text-white' : 'text-gray-800'}`}><i className="fa-solid fa-image"></i> Images</h3>
                   <div className="grid gap-4">
                     {organism.images.map((image, index) => (
                       <div key={index} className={`flex items-center justify-center ${isDark ? 'bg-gray-700' : 'bg-gray-50'} rounded-lg w-full h-48 sm:h-64 mx-auto`}>
@@ -781,6 +936,7 @@ const OrganismDetail = () => {
 const AdminPanel = () => {
   const { isAdmin, logout, token } = React.useContext(AdminContext);
   const { isDark, toggleTheme } = React.useContext(ThemeContext);
+  const { siteSettings } = React.useContext(SiteContext);
   const navigate = useNavigate();
   const [activeView, setActiveView] = useState('dashboard');
   const [organisms, setOrganisms] = useState([]);
@@ -817,23 +973,43 @@ const AdminPanel = () => {
 
   return (
     <div className={`min-h-screen ${isDark ? 'bg-gray-900' : 'bg-gradient-to-br from-purple-50 to-blue-50'}`}>
-      {/* Header */}
-      <header className={`${isDark ? 'bg-gray-800 border-gray-700' : 'bg-gradient-to-r from-purple-600 to-blue-600 border-purple-800'} shadow-lg border-b-4 sticky top-0 z-40`}>
+      <header 
+        className={`shadow-lg border-b-4 sticky top-0 z-40`}
+        style={{
+          background: `linear-gradient(to right, ${siteSettings?.primary_color || '#7c3aed'}, ${siteSettings?.secondary_color || '#3b82f6'})`,
+          borderBottomColor: siteSettings?.primary_color || '#7c3aed'
+        }}
+      >
         <div className="max-w-7xl mx-auto px-3 sm:px-4 py-3 sm:py-4">
           <div className="flex justify-between items-center">
-            <h1 className="text-lg sm:text-2xl font-bold text-white"><i className="fa-solid fa-user-tie"></i> Admin Panel</h1>
+            <h1 
+              className="text-lg sm:text-2xl font-bold text-white"
+              style={{
+                fontFamily: siteSettings?.font_family || 'Poppins, system-ui, sans-serif'
+              }}
+            >
+              <i className="fa-solid fa-user-tie"></i> Admin Panel
+            </h1>
             <div className="flex gap-2 sm:gap-3 items-center">
               <button
                 onClick={toggleTheme}
-                className={`${isDark ? 'bg-gray-700 hover:bg-gray-600 text-yellow-400' : 'bg-white hover:bg-gray-100 text-gray-800'} px-3 sm:px-4 py-2 rounded-lg font-semibold text-xs sm:text-sm transition-all`}
+                className={`px-3 sm:px-4 py-2 rounded-lg font-semibold text-xs sm:text-sm transition-all`}
+                style={{
+                  backgroundColor: isDark ? '#374151' : 'rgba(255, 255, 255, 0.9)',
+                  color: isDark ? siteSettings?.secondary_color || '#fbbf24' : siteSettings?.primary_color || '#7c3aed'
+                }}
               >
-                <i className={`fas ${isDark ? 'fa-sun' : 'fa-moon'}`}></i>
+                <i className={`fa-solid ${isDark ? 'fa-sun' : 'fa-moon'}`}></i>
               </button>
               <button
                 onClick={() => navigate('/')}
-                className={`${isDark ? 'bg-gray-700 hover:bg-gray-600' : 'bg-white hover:bg-gray-100'} ${isDark ? 'text-white' : 'text-purple-700'} px-3 sm:px-4 py-2 rounded-lg font-semibold text-xs sm:text-sm transition-all hidden sm:flex items-center gap-1`}
+                className={`px-3 sm:px-4 py-2 rounded-lg font-semibold text-xs sm:text-sm transition-all hidden sm:flex items-center gap-1`}
+                style={{
+                  backgroundColor: isDark ? '#374151' : 'rgba(255, 255, 255, 0.9)',
+                  color: isDark ? 'white' : siteSettings?.primary_color || '#7c3aed'
+                }}
               >
-                <i className="fas fa-home"></i> <span>Home</span>
+                <i className="fa-solid fa-house"></i> <span>Home</span>
               </button>
               <button
                 onClick={() => {
@@ -841,9 +1017,12 @@ const AdminPanel = () => {
                   showToast('Logged Out Successfully', 'success', 2500);
                   navigate('/');
                 }}
-                className="bg-red-600 hover:bg-red-700 text-white px-3 sm:px-4 py-2 rounded-lg font-semibold text-xs sm:text-sm transition-all flex items-center gap-1"
+                className="text-white px-3 sm:px-4 py-2 rounded-lg font-semibold text-xs sm:text-sm transition-all flex items-center gap-1 hover:opacity-90"
+                style={{
+                  backgroundColor: '#dc2626'
+                }}
               >
-                <i className="fas fa-sign-out-alt"></i> <span className="hidden sm:inline">Logout</span>
+                <i className="fa-solid fa-arrow-right-from-bracket"></i> <span className="hidden sm:inline">Logout</span>
               </button>
             </div>
           </div>
@@ -859,75 +1038,107 @@ const AdminPanel = () => {
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               className={`px-3 py-2 rounded-lg ${isDark ? 'bg-gray-700' : 'bg-gray-100'}`}
             >
-              <i className={`fas fa-bars ${isDark ? 'text-white' : 'text-gray-800'}`}></i>
+              <i className={`fa-solid fa-bars ${isDark ? 'text-white' : 'text-gray-800'}`}></i>
             </button>
           </div>
 
           {/* Desktop Menu */}
-          <div className={`hidden sm:flex border-b ${isDark ? 'border-gray-700' : 'border-gray-200'}`}>
+          <div className={`hidden sm:flex gap-2 flex-wrap items-center border-b ${isDark ? 'border-gray-700' : 'border-gray-200'}`}>
             <button
               onClick={() => setActiveView('dashboard')}
-              className={`px-6 py-4 font-semibold transition-all ${activeView === 'dashboard' 
-                ? `border-b-2 ${isDark ? 'border-purple-500 text-purple-400' : 'border-purple-600 text-purple-600'}` 
-                : `${isDark ? 'text-gray-400 hover:text-purple-400' : 'text-gray-600 hover:text-purple-600'}`}`}
+              className={`px-3 py-2 text-sm font-medium transition-all ${activeView === 'dashboard' 
+                ? `border-b-2 text-white` 
+                : `${isDark ? 'text-gray-400 hover:text-gray-300' : 'text-gray-600 hover:text-gray-800'}`}`}
+              style={activeView === 'dashboard' ? {
+                borderBottomColor: siteSettings?.primary_color || '#7c3aed',
+                color: siteSettings?.primary_color || '#7c3aed'
+              } : {}}
             >
-              <i className="fa-solid fa-chart-simple"></i> Dashboard
+              <i className="fa-solid fa-chart-simple text-xs"></i> Dashboard
             </button>
             <button
               onClick={() => setActiveView('add')}
-              className={`px-6 py-4 font-semibold transition-all ${activeView === 'add' 
-                ? `border-b-2 ${isDark ? 'border-purple-500 text-purple-400' : 'border-purple-600 text-purple-600'}` 
-                : `${isDark ? 'text-gray-400 hover:text-purple-400' : 'text-gray-600 hover:text-purple-600'}`}`}
+              className={`px-3 py-2 text-sm font-medium transition-all ${activeView === 'add' 
+                ? `border-b-2 text-white` 
+                : `${isDark ? 'text-gray-400 hover:text-gray-300' : 'text-gray-600 hover:text-gray-800'}`}`}
+              style={activeView === 'add' ? {
+                borderBottomColor: siteSettings?.primary_color || '#7c3aed',
+                color: siteSettings?.primary_color || '#7c3aed'
+              } : {}}
             >
-              <i className="fa-solid fa-plus"></i> Add Organism
+              <i className="fa-solid fa-plus text-xs"></i> Add Organism
             </button>
             <button
               onClick={() => setActiveView('manage')}
-              className={`px-6 py-4 font-semibold transition-all ${activeView === 'manage' 
-                ? `border-b-2 ${isDark ? 'border-purple-500 text-purple-400' : 'border-purple-600 text-purple-600'}` 
-                : `${isDark ? 'text-gray-400 hover:text-purple-400' : 'text-gray-600 hover:text-purple-600'}`}`}
+              className={`px-3 py-2 text-sm font-medium transition-all ${activeView === 'manage' 
+                ? `border-b-2 text-white` 
+                : `${isDark ? 'text-gray-400 hover:text-gray-300' : 'text-gray-600 hover:text-gray-800'}`}`}
+              style={activeView === 'manage' ? {
+                borderBottomColor: siteSettings?.primary_color || '#7c3aed',
+                color: siteSettings?.primary_color || '#7c3aed'
+              } : {}}
             >
-              <i className="fa-regular fa-pen-to-square"></i> Manage Organisms
+              <i className="fa-solid fa-pen-to-square text-xs"></i> Manage Organisms
             </button>
             <button
               onClick={() => setActiveView('suggestions')}
-              className={`px-6 py-4 font-semibold transition-all ${activeView === 'suggestions' 
-                ? `border-b-2 ${isDark ? 'border-purple-500 text-purple-400' : 'border-purple-600 text-purple-600'}` 
-                : `${isDark ? 'text-gray-400 hover:text-purple-400' : 'text-gray-600 hover:text-purple-600'}`}`}
+              className={`px-3 py-2 text-sm font-medium transition-all ${activeView === 'suggestions' 
+                ? `border-b-2 text-white` 
+                : `${isDark ? 'text-gray-400 hover:text-gray-300' : 'text-gray-600 hover:text-gray-800'}`}`}
+              style={activeView === 'suggestions' ? {
+                borderBottomColor: siteSettings?.primary_color || '#7c3aed',
+                color: siteSettings?.primary_color || '#7c3aed'
+              } : {}}
             >
-              <i className="fa-regular fa-lightbulb"></i> Suggested Organisms
+              <i className="fa-solid fa-lightbulb text-xs"></i> Suggested
             </button>
             <button
               onClick={() => setActiveView('users')}
-              className={`px-6 py-4 font-semibold transition-all ${activeView === 'users' 
-                ? `border-b-2 ${isDark ? 'border-purple-500 text-purple-400' : 'border-purple-600 text-purple-600'}` 
-                : `${isDark ? 'text-gray-400 hover:text-purple-400' : 'text-gray-600 hover:text-purple-600'}`}`}
+              className={`px-3 py-2 text-sm font-medium transition-all ${activeView === 'users' 
+                ? `border-b-2 text-white` 
+                : `${isDark ? 'text-gray-400 hover:text-gray-300' : 'text-gray-600 hover:text-gray-800'}`}`}
+              style={activeView === 'users' ? {
+                borderBottomColor: siteSettings?.primary_color || '#7c3aed',
+                color: siteSettings?.primary_color || '#7c3aed'
+              } : {}}
             >
-              <i className="fa-solid fa-user-clock"></i> Users History
+              <i className="fa-solid fa-user-clock text-xs"></i> Users
             </button>
             <button
               onClick={() => setActiveView('biotube')}
-              className={`px-6 py-4 font-semibold transition-all ${activeView === 'biotube' 
-                ? `border-b-2 ${isDark ? 'border-purple-500 text-purple-400' : 'border-purple-600 text-purple-600'}` 
-                : `${isDark ? 'text-gray-400 hover:text-purple-400' : 'text-gray-600 hover:text-purple-600'}`}`}
+              className={`px-3 py-2 text-sm font-medium transition-all ${activeView === 'biotube' 
+                ? `border-b-2 text-white` 
+                : `${isDark ? 'text-gray-400 hover:text-gray-300' : 'text-gray-600 hover:text-gray-800'}`}`}
+              style={activeView === 'biotube' ? {
+                borderBottomColor: siteSettings?.primary_color || '#7c3aed',
+                color: siteSettings?.primary_color || '#7c3aed'
+              } : {}}
             >
-              <i className="fa-solid fa-clapperboard"></i> BioTube
+              <i className="fa-solid fa-clapperboard text-xs"></i> BioTube
             </button>
             <button
               onClick={() => setActiveView('blogs')}
-              className={`px-6 py-4 font-semibold transition-all ${activeView === 'blogs' 
-                ? `border-b-2 ${isDark ? 'border-purple-500 text-purple-400' : 'border-purple-600 text-purple-600'}` 
-                : `${isDark ? 'text-gray-400 hover:text-purple-400' : 'text-gray-600 hover:text-purple-600'}`}`}
+              className={`px-3 py-2 text-sm font-medium transition-all ${activeView === 'blogs' 
+                ? `border-b-2 text-white` 
+                : `${isDark ? 'text-gray-400 hover:text-gray-300' : 'text-gray-600 hover:text-gray-800'}`}`}
+              style={activeView === 'blogs' ? {
+                borderBottomColor: siteSettings?.primary_color || '#7c3aed',
+                color: siteSettings?.primary_color || '#7c3aed'
+              } : {}}
             >
-              <i className="fa-solid fa-book"></i> Blogs
+              <i className="fa-solid fa-book text-xs"></i> Blogs
             </button>
             <button
               onClick={() => setActiveView('personalization')}
-              className={`px-6 py-4 font-semibold transition-all ${activeView === 'personalization' 
-                ? `border-b-2 ${isDark ? 'border-purple-500 text-purple-400' : 'border-purple-600 text-purple-600'}` 
-                : `${isDark ? 'text-gray-400 hover:text-purple-400' : 'text-gray-600 hover:text-purple-600'}`}`}
+              className={`px-3 py-2 text-sm font-medium transition-all ${activeView === 'personalization' 
+                ? `border-b-2 text-white` 
+                : `${isDark ? 'text-gray-400 hover:text-gray-300' : 'text-gray-600 hover:text-gray-800'}`}`}
+              style={activeView === 'personalization' ? {
+                borderBottomColor: siteSettings?.primary_color || '#7c3aed',
+                color: siteSettings?.primary_color || '#7c3aed'
+              } : {}}
             >
-              <i className="fa-solid fa-wand-magic-sparkles"></i> Personalization
+              <i className="fa-solid fa-wand-magic-sparkles text-xs"></i> Settings
             </button>
           </div>
 
@@ -938,55 +1149,55 @@ const AdminPanel = () => {
                 onClick={() => { setActiveView('dashboard'); setMobileMenuOpen(false); }}
                 className={`w-full text-left px-4 py-3 font-semibold ${activeView === 'dashboard' ? (isDark ? 'bg-purple-900 text-purple-300' : 'bg-purple-100 text-purple-700') : (isDark ? 'text-gray-300' : 'text-gray-700')}`}
               >
-                📊 Dashboard
+                <i className="fa-solid fa-chart-line mr-2"></i>Dashboard
               </button>
               <button
                 onClick={() => { setActiveView('add'); setMobileMenuOpen(false); }}
                 className={`w-full text-left px-4 py-3 font-semibold ${activeView === 'add' ? (isDark ? 'bg-purple-900 text-purple-300' : 'bg-purple-100 text-purple-700') : (isDark ? 'text-gray-300' : 'text-gray-700')}`}
               >
-                ➕ Add Organism
+                <i className="fa-solid fa-plus mr-2"></i>Add Organism
               </button>
               <button
                 onClick={() => { setActiveView('manage'); setMobileMenuOpen(false); }}
                 className={`w-full text-left px-4 py-3 font-semibold ${activeView === 'manage' ? (isDark ? 'bg-purple-900 text-purple-300' : 'bg-purple-100 text-purple-700') : (isDark ? 'text-gray-300' : 'text-gray-700')}`}
               >
-                📝 Manage Organisms
+                <i className="fa-solid fa-pen-to-square mr-2"></i>Manage Organisms
               </button>
               <button
                 onClick={() => { setActiveView('suggestions'); setMobileMenuOpen(false); }}
                 className={`w-full text-left px-4 py-3 font-semibold ${activeView === 'suggestions' ? (isDark ? 'bg-purple-900 text-purple-300' : 'bg-purple-100 text-purple-700') : (isDark ? 'text-gray-300' : 'text-gray-700')}`}
               >
-                💡 Suggested Organisms
+                <i className="fa-solid fa-lightbulb mr-2"></i>Suggested Organisms
               </button>
               <button
                 onClick={() => { setActiveView('users'); setMobileMenuOpen(false); }}
                 className={`w-full text-left px-4 py-3 font-semibold ${activeView === 'users' ? (isDark ? 'bg-purple-900 text-purple-300' : 'bg-purple-100 text-purple-700') : (isDark ? 'text-gray-300' : 'text-gray-700')}`}
               >
-                👥 Users History
+                <i className="fa-solid fa-users mr-2"></i>Users History
               </button>
               <button
                 onClick={() => { setActiveView('biotube'); setMobileMenuOpen(false); }}
                 className={`w-full text-left px-4 py-3 font-semibold ${activeView === 'biotube' ? (isDark ? 'bg-purple-900 text-purple-300' : 'bg-purple-100 text-purple-700') : (isDark ? 'text-gray-300' : 'text-gray-700')}`}
               >
-                🎬 Biotube
+                <i className="fa-solid fa-clapperboard mr-2"></i>Biotube
               </button>
               <button
                 onClick={() => { setActiveView('blogs'); setMobileMenuOpen(false); }}
                 className={`w-full text-left px-4 py-3 font-semibold ${activeView === 'blogs' ? (isDark ? 'bg-purple-900 text-purple-300' : 'bg-purple-100 text-purple-700') : (isDark ? 'text-gray-300' : 'text-gray-700')}`}
               >
-                📚 Blogs
+                <i className="fa-solid fa-book mr-2"></i>Blogs
               </button>
               <button
                 onClick={() => { setActiveView('personalization'); setMobileMenuOpen(false); }}
                 className={`w-full text-left px-4 py-3 font-semibold ${activeView === 'personalization' ? (isDark ? 'bg-purple-900 text-purple-300' : 'bg-purple-100 text-purple-700') : (isDark ? 'text-gray-300' : 'text-gray-700')}`}
               >
-                ✨ Personalization
+                <i className="fa-solid fa-wand-magic-sparkles mr-2"></i>Personalization
               </button>
               <button
                 onClick={() => { navigate('/'); setMobileMenuOpen(false); }}
                 className={`w-full text-left px-4 py-3 font-semibold border-t ${isDark ? 'border-gray-700 text-gray-300' : 'border-gray-200 text-gray-700'}`}
               >
-                🏠 Home
+                <i className="fa-solid fa-house mr-2"></i>Home
               </button>
             </div>
           )}
@@ -1099,9 +1310,9 @@ const SuggestedOrganismsTab = ({ token, isDark, onApprovalSuccess }) => {
       }));
       
       if (response.data.exists) {
-        showToast(`⚠️ "${organismName}" already exists in database!`, 'error', 4000);
+        showToast(`"${organismName}" already exists in database!`, 'error', 4000);
       } else {
-        showToast(`✅ "${organismName}" is new and can be approved!`, 'success', 3000);
+        showToast(`"${organismName}" is new and can be approved!`, 'success', 3000);
       }
     } catch (error) {
       showToast('Error verifying organism: ' + (error.response?.data?.detail || error.message), 'error');
@@ -1126,7 +1337,7 @@ const SuggestedOrganismsTab = ({ token, isDark, onApprovalSuccess }) => {
           : sugg
       ));
       
-      showToast('✅ Verification completed! Check the results.', 'success', 3000);
+      showToast('Verification completed! Check the results.', 'success', 3000);
     } catch (error) {
       showToast('Error verifying suggestion: ' + (error.response?.data?.detail || error.message), 'error');
     } finally {
@@ -1156,7 +1367,7 @@ const SuggestedOrganismsTab = ({ token, isDark, onApprovalSuccess }) => {
         );
         
         setSuggestions(prev => prev.filter(sugg => sugg.id !== suggestionId));
-        showToast(`❌ Auto-rejected! "${suggestion.organism_name}" already exists in database.`, 'error', 4000);
+        showToast(`Auto-rejected! "${suggestion.organism_name}" already exists in database.`, 'error', 4000);
         return;
       }
       
@@ -1170,8 +1381,8 @@ const SuggestedOrganismsTab = ({ token, isDark, onApprovalSuccess }) => {
       // Extract organism_data from the response
       const organizmData = response.data.organism_data || response.data;
       
-      console.log('🎉 Approval Response:', response.data);
-      console.log('📊 Extracted Organism Data:', organizmData);
+      console.log('Approval Response:', response.data);
+      console.log('Extracted Organism Data:', organizmData);
       
       // Transform to frontend format if needed
       const approvedData = {
@@ -1202,9 +1413,9 @@ const SuggestedOrganismsTab = ({ token, isDark, onApprovalSuccess }) => {
       
       // Remove from suggestions list
       setSuggestions(prev => prev.filter(sugg => sugg.id !== suggestionId));
-      showToast('✅ Suggestion approved! Form auto-filled in Add Organism tab.', 'success', 3000);
+      showToast('Suggestion approved! Form auto-filled in Add Organism tab.', 'success', 3000);
     } catch (error) {
-      console.error('❌ Approval Error:', error);
+      console.error('Approval Error:', error);
       showToast('Error approving suggestion: ' + (error.response?.data?.detail || error.message), 'error');
     } finally {
       setApprovingId(null);
@@ -1224,7 +1435,7 @@ const SuggestedOrganismsTab = ({ token, isDark, onApprovalSuccess }) => {
         );
         
         setSuggestions(prev => prev.filter(sugg => sugg.id !== suggestionId));
-        showToast('❌ Suggestion rejected!', 'error', 3000);
+        showToast('Suggestion rejected!', 'error', 3000);
       } catch (error) {
         showToast('Error rejecting suggestion: ' + (error.response?.data?.detail || error.message), 'error');
       }
@@ -1240,7 +1451,7 @@ const SuggestedOrganismsTab = ({ token, isDark, onApprovalSuccess }) => {
         );
         
         setSuggestions(prev => prev.filter(sugg => sugg.id !== suggestionId));
-        showToast('✅ Suggestion deleted!', 'success', 3000);
+        showToast('Suggestion deleted!', 'success', 3000);
       } catch (error) {
         showToast('Error deleting suggestion: ' + (error.response?.data?.detail || error.message), 'error');
       }
@@ -1250,12 +1461,12 @@ const SuggestedOrganismsTab = ({ token, isDark, onApprovalSuccess }) => {
   return (
     <div>
       <h2 className={`text-2xl sm:text-3xl font-semibold mb-6 ${isDark ? 'text-white' : 'text-gray-800'}`}>
-        💡 Suggested Organisms
+        <i className="fa-solid fa-lightbulb mr-2 text-yellow-500"></i>Suggested Organisms
       </h2>
 
       {loading && (
         <div className={`text-center py-12 rounded-lg ${isDark ? 'bg-gray-800' : 'bg-gray-100'}`}>
-          <p className={`text-lg ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>⏳ Loading suggestions...</p>
+          <p className={`text-lg ${isDark ? 'text-gray-400' : 'text-gray-600'}`}><i className="fa-solid fa-hourglass-end mr-2"></i>Loading suggestions...</p>
         </div>
       )}
 
@@ -1275,7 +1486,7 @@ const SuggestedOrganismsTab = ({ token, isDark, onApprovalSuccess }) => {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
               <div>
                 <p className={`text-xs sm:text-sm font-semibold ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
-                  👤 Suggested By:
+                  <i className="fa-solid fa-user mr-2"></i>Suggested By:
                 </p>
                 <p className={`text-sm sm:text-base font-semibold ${isDark ? 'text-white' : 'text-gray-800'}`}>
                   {suggestion.user_name}
@@ -1283,7 +1494,7 @@ const SuggestedOrganismsTab = ({ token, isDark, onApprovalSuccess }) => {
               </div>
               <div>
                 <p className={`text-xs sm:text-sm font-semibold ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
-                  🎓 Class/Standard:
+                  <i className="fa-solid fa-graduation-cap mr-2"></i>Class/Standard:
                 </p>
                 <p className={`text-sm sm:text-base font-semibold ${isDark ? 'text-blue-400' : 'text-blue-700'}`}>
                   {suggestion.educational_level || 'Not specified'}
@@ -1294,7 +1505,7 @@ const SuggestedOrganismsTab = ({ token, isDark, onApprovalSuccess }) => {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
               <div>
                 <p className={`text-xs sm:text-sm font-semibold ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
-                  🔬 Organism Name:
+                  <i className="fa-solid fa-microscope mr-2"></i>Organism Name:
                 </p>
                 <p className={`text-sm sm:text-base font-semibold ${isDark ? 'text-green-400' : 'text-green-700'}`}>
                   {capitalizeOrganismName(suggestion.organism_name)}
@@ -1305,7 +1516,7 @@ const SuggestedOrganismsTab = ({ token, isDark, onApprovalSuccess }) => {
             {suggestion.description && (
               <div className="mb-4">
                 <p className={`text-xs sm:text-sm font-semibold mb-1 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
-                  📝 Description:
+                  <i className="fa-solid fa-pen-to-square mr-2"></i>Description:
                 </p>
                 <p className={`text-xs sm:text-sm ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
                   {suggestion.description}
@@ -1321,7 +1532,9 @@ const SuggestedOrganismsTab = ({ token, isDark, onApprovalSuccess }) => {
                   : isDark ? 'bg-green-900 border-green-600' : 'bg-green-50 border-green-300'
               }`}>
                 <div className="flex items-start gap-2">
-                  <div className={`text-xl sm:text-2xl ${verificationResults[suggestion.id].exists ? '❌' : '✅'}`}></div>
+                  <div className={`text-xl sm:text-2xl`}>
+                    <i className={`fa-solid ${verificationResults[suggestion.id].exists ? 'fa-circle-xmark text-red-600' : 'fa-circle-check text-green-600'}`}></i>
+                  </div>
                   <div className="flex-1">
                     <p className={`font-bold text-sm sm:text-base ${
                       verificationResults[suggestion.id].exists
@@ -1359,7 +1572,8 @@ const SuggestedOrganismsTab = ({ token, isDark, onApprovalSuccess }) => {
                   : isDark ? 'bg-red-900 border-red-600 text-red-100' : 'bg-red-50 border-red-300 text-red-800'
               }`}>
                 <p className="font-semibold text-xs sm:text-sm mb-1">
-                  {suggestion.ai_verification.is_authentic ? '✅ Authentic!' : '❌ Not Authentic'}
+                  <i className={`fa-solid ${suggestion.ai_verification.is_authentic ? 'fa-circle-check text-green-600' : 'fa-circle-xmark text-red-600'} mr-2`}></i>
+                  {suggestion.ai_verification.is_authentic ? 'Authentic!' : 'Not Authentic'}
                 </p>
                 <p className="text-xs sm:text-sm">{suggestion.ai_verification.reason}</p>
                 {suggestion.ai_verification.is_authentic && (
@@ -1378,7 +1592,8 @@ const SuggestedOrganismsTab = ({ token, isDark, onApprovalSuccess }) => {
                 disabled={verifyingId === suggestion.id}
                 className="flex-1 sm:flex-none bg-purple-600 hover:bg-purple-700 disabled:bg-gray-600 text-white px-3 sm:px-4 py-2 sm:py-2.5 rounded-lg font-medium text-xs sm:text-sm transition-all"
               >
-                {verifyingId === suggestion.id ? '⏳ Checking...' : '🔍 Check Database'}
+                <i className="fa-solid fa-hourglass-end mr-1"></i>{verifyingId === suggestion.id ? 'Checking...' : ''}
+                <i className="fa-solid fa-magnifying-glass mr-1"></i>{verifyingId !== suggestion.id ? 'Check Database' : ''}
               </button>
 
               {!suggestion.ai_verification && (
@@ -1387,7 +1602,8 @@ const SuggestedOrganismsTab = ({ token, isDark, onApprovalSuccess }) => {
                   disabled={verifyingId === suggestion.id}
                   className="flex-1 sm:flex-none bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 text-white px-3 sm:px-4 py-2 sm:py-2.5 rounded-lg font-medium text-xs sm:text-sm transition-all"
                 >
-                  {verifyingId === suggestion.id ? '⏳ Verifying...' : '🤖 Verify with AI'}
+                  <i className="fa-solid fa-hourglass-end mr-1"></i>{verifyingId === suggestion.id ? 'Verifying...' : ''}
+                  <i className="fa-solid fa-robot mr-1"></i>{verifyingId !== suggestion.id ? 'Verify with AI' : ''}
                 </button>
               )}
               
@@ -1397,7 +1613,8 @@ const SuggestedOrganismsTab = ({ token, isDark, onApprovalSuccess }) => {
                   disabled={approvingId === suggestion.id}
                   className="flex-1 sm:flex-none bg-green-600 hover:bg-green-700 disabled:bg-gray-600 text-white px-3 sm:px-4 py-2 sm:py-2.5 rounded-lg font-medium text-xs sm:text-sm transition-all"
                 >
-                  {approvingId === suggestion.id ? '⏳ Approving...' : '✅ Approve'}
+                  <i className="fa-solid fa-hourglass-end mr-1"></i>{approvingId === suggestion.id ? 'Approving...' : ''}
+                  <i className="fa-solid fa-circle-check mr-1"></i>{approvingId !== suggestion.id ? 'Approve' : ''}
                 </button>
               )}
               
@@ -1405,7 +1622,7 @@ const SuggestedOrganismsTab = ({ token, isDark, onApprovalSuccess }) => {
                 onClick={() => handleReject(suggestion.id)}
                 className="flex-1 sm:flex-none bg-yellow-600 hover:bg-yellow-700 text-white px-3 sm:px-4 py-2 sm:py-2.5 rounded-lg font-medium text-xs sm:text-sm transition-all"
               >
-                ⚠️ Reject
+                <i className="fa-solid fa-triangle-exclamation mr-1"></i>Reject
               </button>
               
               <button
@@ -1633,11 +1850,11 @@ const AddOrganismForm = ({ token, isDark, onSuccess, initialData }) => {
         }));
         setShowAiHelper(false);
         setAiOrganismName('');
-        showToast('✅ Organism data filled successfully! Review and adjust as needed.', 'success', 3000);
+        showToast('Organism data filled successfully! Review and adjust as needed.', 'success', 3000);
       }
     } catch (error) {
       const errorMsg = error.response?.data?.detail || error.message || 'Failed to get AI response';
-      showToast('❌ Error: ' + errorMsg, 'error', 3000);
+      showToast('Error: ' + errorMsg, 'error', 3000);
     } finally {
       setAiLoading(false);
     }
@@ -1669,7 +1886,7 @@ const AddOrganismForm = ({ token, isDark, onSuccess, initialData }) => {
           images: [...prev.images, ...newImages]
         }));
         setAiImageOrganism('');
-        alert(`✅ ${newImages.length} HD images generated successfully!`);
+        alert(`${newImages.length} HD images generated successfully!`);
       } else {
         alert('No images were generated. Please try again.');
       }
@@ -1692,7 +1909,7 @@ const AddOrganismForm = ({ token, isDark, onSuccess, initialData }) => {
         timeout: 30000 // 30 second timeout
       });
       
-      showToast('🎉 Organism added successfully!', 'success', 3000);
+      showToast('Organism added successfully!', 'success', 3000);
       setFormData({
         name: '',
         scientific_name: '',
@@ -1707,7 +1924,7 @@ const AddOrganismForm = ({ token, isDark, onSuccess, initialData }) => {
       onSuccess();
     } catch (error) {
       const errorMsg = error.response?.data?.detail || error.message || 'Network error - please check your connection';
-      showToast('❌ Error: ' + errorMsg, 'error', 3000);
+      showToast('Error: ' + errorMsg, 'error', 3000);
       console.error('Detailed error:', error);
     } finally {
       setLoading(false);
@@ -1722,7 +1939,7 @@ const AddOrganismForm = ({ token, isDark, onSuccess, initialData }) => {
           <div className={`${isDark ? 'bg-gray-900' : 'bg-white'} p-8 rounded-2xl shadow-2xl max-w-md w-full mx-4 text-center animate-pulse`}>
             <div className="flex justify-center mb-4">
               <div className="text-5xl animate-bounce">
-                <i className={`fas fa-brain ${isDark ? 'text-blue-400' : 'text-blue-600'}`}></i>
+                <i className={`fa-solid fa-brain ${isDark ? 'text-blue-400' : 'text-blue-600'}`}></i>
               </div>
             </div>
             <h3 className={`text-2xl font-bold mb-2 ${isDark ? 'text-white' : 'text-gray-800'}`}>
@@ -1754,7 +1971,7 @@ const AddOrganismForm = ({ token, isDark, onSuccess, initialData }) => {
             <div className={`mt-3 p-4 sm:p-5 rounded-lg inline-block animate-pulse ${isDark ? 'bg-gradient-to-r from-blue-900 to-purple-900 border-2 border-blue-500' : 'bg-gradient-to-r from-blue-100 to-purple-100 border-2 border-blue-500'}`}>
               <div className="flex items-center gap-3">
                 <div className="animate-spin text-2xl">
-                  <i className={`fas fa-brain ${isDark ? 'text-blue-300' : 'text-blue-600'}`}></i>
+                  <i className={`fa-solid fa-brain ${isDark ? 'text-blue-300' : 'text-blue-600'}`}></i>
                 </div>
                 <div>
                   <p className={`text-sm font-bold ${isDark ? 'text-blue-100' : 'text-blue-900'}`}>
@@ -1773,7 +1990,7 @@ const AddOrganismForm = ({ token, isDark, onSuccess, initialData }) => {
           onClick={() => setShowAiHelper(!showAiHelper)}
           className="w-full sm:w-auto bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white px-4 py-2 sm:py-3 rounded-lg font-semibold transition-all flex items-center gap-2 justify-center text-sm"
         >
-          <i className="fas fa-magic"></i> <span>AI Helper</span>
+          <i className="fa-solid fa-wand-magic-sparkles"></i> <span>AI Helper</span>
         </button>
       </div>
 
@@ -2130,9 +2347,9 @@ const SuggestionModal = ({ isDark, onClose, token }) => {
       
       if (response.status === 201 || response.status === 200) {
         const successMsg = `Thank you ${formData.user_name}! Suggestion submitted!`;
-        setSuccessMessage(`✅ ${successMsg}`);
+        setSuccessMessage(`${successMsg}`);
         setShowSuccess(true);
-        showToast(`🎉 ${successMsg}`, 'success', 3000);
+        showToast(`${successMsg}`, 'success', 3000);
         setFormData({ user_name: '', organism_name: '', description: '', educational_level: '' });
         
         // Auto-close after 4 seconds
@@ -2141,7 +2358,7 @@ const SuggestionModal = ({ isDark, onClose, token }) => {
         }, 4000);
       }
     } catch (error) {
-      console.error('❌ Submission Error:', error);
+      console.error('Submission Error:', error);
       let errMsg = 'An error occurred. Please try again.';
       
       if (error.response?.data?.detail) {
@@ -2156,8 +2373,8 @@ const SuggestionModal = ({ isDark, onClose, token }) => {
           : JSON.stringify(error.response.data);
       }
       
-      setErrorMessage('❌ Error: ' + errMsg);
-      showToast('❌ ' + errMsg, 'error', 3000);
+      setErrorMessage('Error: ' + errMsg);
+      showToast(' ' + errMsg, 'error', 3000);
     } finally {
       setLoading(false);
     }
@@ -2776,11 +2993,11 @@ const ManageOrganisms = ({ organisms, token, isDark, onUpdate }) => {
         await axios.delete(`${API}/admin/organisms/${organismId}`, {
           headers: { Authorization: `Bearer ${token}` }
         });
-        showToast(`🗑️ "${organismName}" deleted successfully!`, 'success', 3000);
+        showToast(`"${organismName}" deleted successfully!`, 'success', 3000);
         onUpdate();
       } catch (error) {
         const errMsg = error.response?.data?.detail || error.message;
-        showToast('❌ Error: ' + errMsg, 'error', 3000);
+        showToast('Error: ' + errMsg, 'error', 3000);
       }
     }
   };
@@ -2953,11 +3170,11 @@ const EditOrganismForm = ({ organism, token, onSuccess, onCancel }) => {
         headers: { Authorization: `Bearer ${token}` }
       });
       
-      showToast('✏️ Organism updated successfully!', 'success', 3000);
+      showToast('Organism updated successfully!', 'success', 3000);
       onSuccess();
     } catch (error) {
       const errMsg = error.response?.data?.detail || error.message;
-      showToast('❌ Error: ' + errMsg, 'error', 3000);
+      showToast('Error: ' + errMsg, 'error', 3000);
     } finally {
       setLoading(false);
     }
@@ -2966,7 +3183,7 @@ const EditOrganismForm = ({ organism, token, onSuccess, onCancel }) => {
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-2xl font-semibold">✏️ Edit Organism: {organism.name}</h2>
+        <h2 className="text-2xl font-semibold">Edit Organism: {organism.name}</h2>
         <button
           onClick={onCancel}
           className="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg"
@@ -3150,6 +3367,7 @@ const OrganismsPage = () => {
   const [selectedPhylum, setSelectedPhylum] = useState('');
   const navigate = useNavigate();
   const { isDark, toggleTheme } = React.useContext(ThemeContext);
+  const { siteSettings } = React.useContext(SiteContext);
 
   useEffect(() => {
     fetchOrganisms();
@@ -3215,18 +3433,42 @@ const OrganismsPage = () => {
   return (
     <div className={`flex flex-col min-h-screen ${isDark ? 'bg-gray-900' : 'bg-white'}`}>
       {/* Navbar */}
-      <header className={`${isDark ? 'bg-gray-800 border-gray-700' : 'bg-gradient-to-r from-green-600 to-green-700 border-green-800'} shadow-lg border-b-4 sticky top-0 z-50`}>
+      <header 
+        className={`shadow-lg border-b-4 sticky top-0 z-50`}
+        style={{
+          background: `linear-gradient(to right, ${siteSettings?.primary_color || '#16a34a'}, ${siteSettings?.secondary_color || '#059669'})`,
+          borderBottomColor: siteSettings?.primary_color || '#16a34a'
+        }}
+      >
         <div className="max-w-7xl mx-auto px-3 sm:px-4 py-2 sm:py-3 flex justify-between items-center">
-          <h1 className="text-lg sm:text-2xl font-bold text-white">🌿 BioMuseum</h1>
+          <h1 
+            className="text-lg sm:text-2xl font-bold text-white"
+            style={{
+              fontFamily: siteSettings?.font_family || 'Poppins, system-ui, sans-serif'
+            }}
+          >
+            {siteSettings?.website_name || 'BioMuseum'}
+          </h1>
           <div className="flex gap-2 sm:gap-3 items-center">
             <button
               onClick={toggleTheme}
-              className={`${isDark ? 'bg-gray-700 hover:bg-gray-600 text-yellow-400' : 'bg-white hover:bg-gray-100 text-gray-800'} px-3 sm:px-4 py-2 rounded-lg font-semibold text-xs sm:text-sm transition-all`}
+              className={`px-3 sm:px-4 py-2 rounded-lg font-semibold text-xs sm:text-sm transition-all`}
+              style={{
+                backgroundColor: isDark ? '#374151' : 'rgba(255, 255, 255, 0.2)',
+                color: 'white'
+              }}
             >
-              <i className={`fas ${isDark ? 'fa-sun' : 'fa-moon'}`}></i>
+              <i className={`fa-solid ${isDark ? 'fa-sun' : 'fa-moon'}`}></i>
             </button>
-            <button onClick={() => window.location.href = '/'} className={`${isDark ? 'bg-gray-700 hover:bg-gray-600 text-green-400' : 'bg-white hover:bg-gray-100 text-green-700'} px-3 sm:px-4 py-2 rounded-lg font-semibold text-xs sm:text-sm transition-all flex items-center gap-1 sm:gap-2 shadow-md`}>
-              <i className="fas fa-arrow-left"></i><span className="hidden sm:inline">Back</span>
+            <button 
+              onClick={() => navigate('/')} 
+              className={`px-3 sm:px-4 py-2 rounded-lg font-semibold text-xs sm:text-sm transition-all flex items-center gap-1 sm:gap-2 shadow-md`}
+              style={{
+                backgroundColor: isDark ? '#374151' : 'rgba(255, 255, 255, 0.2)',
+                color: 'white'
+              }}
+            >
+              <i className="fa-solid fa-arrow-left"></i><span className="hidden sm:inline">Back</span>
             </button>
           </div>
         </div>
@@ -3326,7 +3568,14 @@ const OrganismsPage = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 sm:gap-8">
             <div className="text-center sm:text-left">
-              <h3 className="text-lg sm:text-xl font-bold mb-2 sm:mb-3 text-green-400">🌿 BioMuseum</h3>
+              <h3 
+                className="text-lg sm:text-xl font-bold mb-2 sm:mb-3"
+                style={{
+                  color: siteSettings?.secondary_color || '#4ade80'
+                }}
+              >
+                {siteSettings?.website_name || 'BioMuseum'}
+              </h3>
               <p className={`text-xs sm:text-sm leading-relaxed ${isDark ? 'text-gray-400' : 'text-gray-300'}`}>
                 Discover the wonders of life science through our interactive biology museum.
               </p>

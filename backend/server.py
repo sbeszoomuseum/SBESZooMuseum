@@ -132,6 +132,39 @@ async def init_mongodb():
             
             mongodb_connected = True
             print(f"[OK] ✓ Successfully connected to MongoDB! Found {test_count} organisms, {test_videos} videos in database")
+            
+            # ==================== MIGRATION: Add new fields to site_settings ====================
+            try:
+                existing_settings = await site_settings_collection.find_one({"id": "site_settings"})
+                if existing_settings:
+                    # Check if new fields are missing
+                    needs_update = False
+                    update_data = {}
+                    
+                    if "primary_color" not in existing_settings:
+                        update_data["primary_color"] = "#7c3aed"
+                        needs_update = True
+                    if "secondary_color" not in existing_settings:
+                        update_data["secondary_color"] = "#3b82f6"
+                        needs_update = True
+                    if "font_url" not in existing_settings:
+                        update_data["font_url"] = ""
+                        needs_update = True
+                    if "font_family" not in existing_settings:
+                        update_data["font_family"] = "Poppins"
+                        needs_update = True
+                    
+                    if needs_update:
+                        update_data["updated_at"] = datetime.now().isoformat()
+                        await site_settings_collection.update_one(
+                            {"id": "site_settings"},
+                            {"$set": update_data}
+                        )
+                        print("[OK] ✓ Migrated site_settings with new color and font fields")
+            except Exception as e:
+                print(f"[WARN] Failed to migrate site_settings: {str(e)[:100]}")
+            # ==================== END MIGRATION ====================
+            
             return
             
         except asyncio.TimeoutError:
@@ -412,6 +445,10 @@ class SiteSettings(BaseModel):
     college_name: str = "SBES College of Science"
     department_name: str = "Zoology Department"
     logo_url: Optional[str] = None
+    primary_color: str = "#7c3aed"
+    secondary_color: str = "#3b82f6"
+    font_url: str = ""
+    font_family: str = "Poppins"
     created_at: str = Field(default_factory=get_ist_now)
     updated_at: str = Field(default_factory=get_ist_now)
 
@@ -421,6 +458,10 @@ class SiteSettingsUpdate(BaseModel):
     college_name: Optional[str] = None
     department_name: Optional[str] = None
     logo_url: Optional[str] = None
+    primary_color: Optional[str] = None
+    secondary_color: Optional[str] = None
+    font_url: Optional[str] = None
+    font_family: Optional[str] = None
 
 # Database functions - MongoDB only (no JSON fallback)
 async def get_organisms_list():
@@ -1451,7 +1492,7 @@ if uploads_dir.exists():
 
 # ==================== ADMIN ORGANISMS ENDPOINTS ====================
 
-
+@api_router.post("/admin/organisms", response_model=Organism)
 async def create_organism(organism: OrganismCreate, _: bool = Depends(verify_admin_token)):
     try:
         organism_obj = Organism(**organism.dict())
@@ -2779,9 +2820,18 @@ async def get_site_settings():
                 "initiative_text": "An Initiative by",
                 "college_name": "SBES College of Science",
                 "department_name": "Zoology Department",
-                "logo_url": None
+                "logo_url": None,
+                "primary_color": "#7c3aed",
+                "secondary_color": "#3b82f6",
+                "font_url": "",
+                "font_family": "Poppins"
             }
         settings.pop("_id", None)
+        # Ensure all fields exist with defaults
+        settings.setdefault("primary_color", "#7c3aed")
+        settings.setdefault("secondary_color", "#3b82f6")
+        settings.setdefault("font_url", "")
+        settings.setdefault("font_family", "Poppins")
         return settings
     except Exception as e:
         logging.error(f"Error fetching site settings: {e}")

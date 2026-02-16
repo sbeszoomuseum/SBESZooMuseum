@@ -10,6 +10,10 @@ export const SiteProvider = ({ children }) => {
     college_name: 'SBES College of Science',
     department_name: 'Zoology Department',
     logo_url: null,
+    primary_color: '#7c3aed',
+    secondary_color: '#3b82f6',
+    font_url: '',
+    font_family: 'Poppins',
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);

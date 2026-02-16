@@ -55,7 +55,7 @@ const BioMuseumAIChatbot = () => {
       
       if (result.success) {
         // Show cache indicator if using cached response
-        const cacheIndicator = result.cached ? ' <i className="fas fa-box"></i> (cached)' : '';
+        const cacheIndicator = result.cached ? ' <i className="fa-solid fa-box"></i> (cached)' : '';
         
         const botMessage = {
           id: getTimestampIST() + 1,
@@ -74,7 +74,7 @@ const BioMuseumAIChatbot = () => {
         const errorMsg = {
           id: getTimestampIST() + 1,
           type: 'bot',
-          text: '<i className="fas fa-times-circle"></i> ' + (result.error || 'Failed to get response. Please try again!'),
+          text: (result.error || 'Failed to get response. Please try again!'),
           timestamp: getCurrentDateIST(),
           isError: true,
           isQuotaError: isQuotaError
@@ -85,7 +85,7 @@ const BioMuseumAIChatbot = () => {
       const errorMsg = {
         id: getTimestampIST() + 1,
         type: 'bot',
-        text: '<i className="fas fa-exclamation-triangle"></i> Something went wrong. Please try again in a moment!',
+        text: '<i className="fa-solid fa-exclamation-triangle"></i> Something went wrong. Please try again in a moment!',
         timestamp: getCurrentDateIST(),
         isError: true
       };
@@ -132,7 +132,7 @@ const BioMuseumAIChatbot = () => {
         title="Ask AI"
       >
         {isOpen ? (
-          <i className="fas fa-times text-2xl sm:text-3xl text-white"></i>
+          <i className="fa-solid fa-times text-2xl sm:text-3xl text-white"></i>
         ) : (
           <img 
             src="https://res.cloudinary.com/dse4vnxdi/image/upload/v1766857765/BiomuseumIntel_yt5jjk.jpg" 
@@ -167,7 +167,7 @@ const BioMuseumAIChatbot = () => {
               className="text-2xl sm:text-3xl hover:scale-125 transition-transform ml-2 flex-shrink-0"
               title="Close"
             >
-              <i className="fas fa-times"></i>
+              <i className="fa-solid fa-times"></i>
             </button>
           </div>
 
@@ -192,7 +192,7 @@ const BioMuseumAIChatbot = () => {
                   {/* Organisms related to answer */}
                   {message.organisms && message.organisms.length > 0 && (
                     <div className="mt-2 sm:mt-3 pt-2 sm:pt-3 border-t border-gray-300">
-                      <p className="text-xs sm:text-sm font-semibold text-gray-600 mb-1 sm:mb-2"><i className="fas fa-microscope mr-1"></i>Related organisms:</p>
+                      <p className="text-xs sm:text-sm font-semibold text-gray-600 mb-1 sm:mb-2"><i className="fa-solid fa-microscope mr-1"></i>Related organisms:</p>
                       <div className="flex flex-wrap gap-1 sm:gap-2">
                         {message.organisms.map((org, idx) => (
                           <span key={idx} className="inline-block text-xs sm:text-sm bg-gray-200 text-gray-700 px-2 sm:px-3 py-0.5 sm:py-1 rounded-full">
@@ -206,7 +206,7 @@ const BioMuseumAIChatbot = () => {
                   {/* Suggestions */}
                   {message.suggestions && message.suggestions.length > 0 && (
                     <div className="mt-3 sm:mt-4 pt-2 sm:pt-3 border-t border-gray-300 space-y-1 sm:space-y-2">
-                      <p className="text-xs sm:text-sm font-semibold text-gray-600"><i className="fas fa-lightbulb mr-1"></i>Ask me about:</p>
+                      <p className="text-xs sm:text-sm font-semibold text-gray-600"><i className="fa-solid fa-lightbulb mr-1"></i>Ask me about:</p>
                       {message.suggestions.map((sugg, idx) => (
                         <button
                           key={idx}
@@ -258,7 +258,7 @@ const BioMuseumAIChatbot = () => {
                 disabled={loading || !inputValue.trim()}
                 className="bg-gradient-to-r from-green-500 to-emerald-600 text-white px-3 sm:px-6 py-2 sm:py-3 rounded-full font-bold text-base sm:text-lg hover:shadow-lg disabled:opacity-50 transition-all duration-200 hover:scale-105 flex-shrink-0"
               >
-                {loading ? <i className="fas fa-hourglass-end"></i> : <i className="fas fa-arrow-right"></i>}
+                {loading ? <i className="fa-solid fa-hourglass-end"></i> : <i className="fa-solid fa-arrow-right"></i>}
               </button>
             </form>
             

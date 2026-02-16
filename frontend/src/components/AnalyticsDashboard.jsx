@@ -81,7 +81,7 @@ const AnalyticsDashboard = ({ isDark }) => {
         {/* Header */}
         <div className="mb-8">
           <h1 className={`text-3xl sm:text-4xl font-bold ${isDark ? 'text-white' : 'text-gray-900'} mb-2`}>
-            <i className="fas fa-chart-bar text-blue-500 mr-2"></i>Analytics Dashboard
+            <i className="fa-solid fa-chart-bar text-blue-500 mr-2"></i>Analytics Dashboard
           </h1>
           <p className={isDark ? 'text-gray-400' : 'text-gray-600'}>
             Platform performance and engagement metrics
@@ -92,26 +92,26 @@ const AnalyticsDashboard = ({ isDark }) => {
         {stats && (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
             <StatCard
-              icon={<i className="fas fa-paw text-green-500 text-3xl"></i>}
+              icon={<i className="fa-solid fa-paw text-green-500 text-3xl"></i>}
               label="Total Organisms"
               value={stats.total_organisms}
               color="text-green-500"
             />
             <StatCard
-              icon={<i className="fas fa-film text-blue-500 text-3xl"></i>}
+              icon={<i className="fa-solid fa-film text-blue-500 text-3xl"></i>}
               label="Total Videos"
               value={stats.total_videos}
               color="text-blue-500"
             />
             <StatCard
-              icon={<i className="fas fa-lightbulb text-purple-500 text-3xl"></i>}
+              icon={<i className="fa-solid fa-lightbulb text-purple-500 text-3xl"></i>}
               label="Suggestions"
               value={stats.total_suggestions}
               subtext={`${stats.pending_suggestions} pending`}
               color="text-purple-500"
             />
             <StatCard
-              icon={<i className="fas fa-users text-pink-500 text-3xl"></i>}
+              icon={<i className="fa-solid fa-users text-pink-500 text-3xl"></i>}
               label="Contributors"
               value={stats.unique_contributors}
               color="text-pink-500"
@@ -124,7 +124,7 @@ const AnalyticsDashboard = ({ isDark }) => {
           {stats && (
             <div className={`rounded-lg p-6 ${isDark ? 'bg-gray-800' : 'bg-white'} shadow-lg`}>
               <h2 className={`text-xl font-bold mb-4 ${isDark ? 'text-white' : 'text-gray-900'}`}>
-                <i className="fas fa-check-circle text-green-500 mr-2"></i>Approval Rate
+                <i className="fa-solid fa-circle-check text-green-500 mr-2"></i>Approval Rate
               </h2>
               <div className="flex items-center justify-between">
                 <div>
@@ -135,7 +135,7 @@ const AnalyticsDashboard = ({ isDark }) => {
                     of suggestions approved
                   </div>
                 </div>
-                <div className={`text-6xl opacity-20`}><i className="fas fa-check-circle"></i></div>
+                <div className={`text-6xl opacity-20`}><i className="fa-solid fa-circle-check"></i></div>
               </div>
               <div className={`w-full bg-gray-300 rounded-full h-4 mt-4 ${isDark ? 'bg-gray-700' : ''}`}>
                 <div
@@ -150,7 +150,7 @@ const AnalyticsDashboard = ({ isDark }) => {
           {trends && (
             <div className={`rounded-lg p-6 ${isDark ? 'bg-gray-800' : 'bg-white'} shadow-lg`}>
               <h2 className={`text-xl font-bold mb-4 ${isDark ? 'text-white' : 'text-gray-900'}`}>
-                <i className="fas fa-chart-line text-purple-500 mr-2"></i>Growth (Last 30 Days)
+                <i className="fa-solid fa-chart-line text-purple-500 mr-2"></i>Growth (Last 30 Days)
               </h2>
               <div className="space-y-3">
                 <div>
@@ -183,7 +183,7 @@ const AnalyticsDashboard = ({ isDark }) => {
         {/* Trending Organisms */}
         <div className={`rounded-lg p-6 ${isDark ? 'bg-gray-800' : 'bg-white'} shadow-lg mb-8`}>
           <h2 className={`text-xl font-bold mb-4 ${isDark ? 'text-white' : 'text-gray-900'}`}>
-            <i className="fas fa-fire text-red-500 mr-2"></i>Trending Organisms
+            <i className="fa-solid fa-fire text-red-500 mr-2"></i>Trending Organisms
           </h2>
           <div className="space-y-3">
             {trendingOrganisms.slice(0, 5).map((org, idx) => (
@@ -209,7 +209,7 @@ const AnalyticsDashboard = ({ isDark }) => {
         {/* Top Contributors */}
         <div className={`rounded-lg p-6 ${isDark ? 'bg-gray-800' : 'bg-white'} shadow-lg`}>
           <h2 className={`text-xl font-bold mb-4 ${isDark ? 'text-white' : 'text-gray-900'}`}>
-            <i className="fas fa-users text-blue-500 mr-2"></i>Top Contributors
+            <i className="fa-solid fa-users text-blue-500 mr-2"></i>Top Contributors
           </h2>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">

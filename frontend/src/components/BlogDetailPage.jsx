@@ -144,9 +144,9 @@ const BlogDetailPage = ({ isDark }) => {
             
             {/* Meta Info */}
             <div className={`flex flex-wrap items-center gap-2 sm:gap-3 md:gap-4 text-xs sm:text-sm ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
-              <span className="truncate"><i className="fas fa-calendar mr-1"></i>{formatDateIST(blog.created_at, { year: 'numeric', month: 'short', day: 'numeric' })}</span>
-              <span className="truncate"><i className="fas fa-clock mr-1"></i>{formatTimeIST(blog.created_at, { hour: '2-digit', minute: '2-digit' })}</span>
-              <span className="truncate"><i className="fas fa-pen-fancy mr-1"></i>{blog.author || 'BioMuseum'}</span>
+              <span className="truncate"><i className="fa-solid fa-calendar mr-1"></i>{formatDateIST(blog.created_at, { year: 'numeric', month: 'short', day: 'numeric' })}</span>
+              <span className="truncate"><i className="fa-solid fa-clock mr-1"></i>{formatTimeIST(blog.created_at, { hour: '2-digit', minute: '2-digit' })}</span>
+              <span className="truncate"><i className="fa-solid fa-pen-fancy mr-1"></i>{blog.author || 'BioMuseum'}</span>
             </div>
           </div>
 
@@ -161,10 +161,10 @@ const BlogDetailPage = ({ isDark }) => {
                   : 'bg-blue-500 text-white hover:bg-blue-600'
               }`}
             >
-              <i className="fas fa-heart mr-1"></i>{blog.likes || 0} {liked && <i className="fas fa-check"></i>}
+              <i className="fa-solid fa-heart mr-1"></i>{blog.likes || 0} {liked && <i className="fa-solid fa-check"></i>}
             </button>
             <div className={`px-3 sm:px-4 py-2.5 rounded-lg font-semibold text-sm sm:text-base min-h-[2.5rem] flex items-center gap-1 sm:gap-2 ${isDark ? 'bg-gray-700/40 text-gray-300' : 'bg-gray-200/60 text-gray-700'}`}>
-              <i className="fas fa-eye mr-1"></i>{blog.views || 0}
+              <i className="fa-solid fa-eye mr-1"></i>{blog.views || 0}
             </div>
             <button
               onClick={downloadQRCode}

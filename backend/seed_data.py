@@ -271,6 +271,10 @@ async def seed_database():
             "college_name": "SBES College of Science",
             "department_name": "Zoology Department",
             "logo_url": None,
+            "primary_color": "#7c3aed",
+            "secondary_color": "#3b82f6",
+            "font_url": "",
+            "font_family": "Poppins",
             "created_at": datetime.now(IST).isoformat(),
             "updated_at": datetime.now(IST).isoformat()
         }

@@ -110,14 +110,14 @@ const BlogHomepage = ({ isDark }) => {
                 <h1 className={`text-lg sm:text-2xl md:text-4xl font-bold truncate ${
                   isDark ? 'text-white' : 'text-gray-900'
                 }`}>
-                  <i className="fas fa-book mr-1"></i>Blogs
+                  <i className="fa-solid fa-book mr-1"></i>Blogs
                 </h1>
               </div>
               <button
                 onClick={() => setShowSuggestionModal(true)}
                 className="px-3 sm:px-4 py-2 rounded-lg font-semibold text-sm sm:text-base bg-gradient-to-r from-blue-500 to-purple-500 text-white hover:shadow-lg transition-all active:scale-95 min-h-[2.5rem] whitespace-nowrap flex-shrink-0"
               >
-                <i className="fas fa-lightbulb mr-1"></i>Suggest
+                <i className="fa-solid fa-lightbulb mr-1"></i>Suggest
               </button>
             </div>
           </div>
@@ -138,7 +138,7 @@ const BlogHomepage = ({ isDark }) => {
                 : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500 focus:border-blue-500'
             }`}
           />
-          <span className="absolute right-3 sm:right-4 top-1/2 -translate-y-1/2 text-lg sm:text-2xl pointer-events-none"><i className="fas fa-search"></i></span>
+          <span className="absolute right-3 sm:right-4 top-1/2 -translate-y-1/2 text-lg sm:text-2xl pointer-events-none"><i className="fa-solid fa-search"></i></span>
         </div>
       </div>
 
@@ -202,10 +202,10 @@ const BlogHomepage = ({ isDark }) => {
                   <div className="flex items-center justify-between text-xs gap-1.5 mt-auto">
                     <div className="flex gap-1.5 sm:gap-2">
                       <span className={`flex items-center gap-0.5 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
-                        <i className="fas fa-eye mr-1"></i>{blog.views || 0}
+                        <i className="fa-solid fa-eye mr-1"></i>{blog.views || 0}
                       </span>
                       <span className={`flex items-center gap-0.5 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
-                        <i className="fas fa-heart mr-1"></i>{blog.likes || 0}
+                        <i className="fa-solid fa-heart mr-1"></i>{blog.likes || 0}
                       </span>
                     </div>
                     <span className={`${isDark ? 'text-gray-500' : 'text-gray-500'} text-xs whitespace-nowrap`}>
@@ -224,7 +224,7 @@ const BlogHomepage = ({ isDark }) => {
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-end sm:items-center justify-center z-50 p-3 sm:p-4">
           <div className={`rounded-t-3xl sm:rounded-2xl shadow-2xl max-w-md w-full p-5 sm:p-8 max-h-[90vh] sm:max-h-none overflow-y-auto ${isDark ? 'bg-gray-800' : 'bg-white'}`}>
             <h2 className={`text-xl sm:text-2xl font-bold mb-2 sm:mb-4 ${isDark ? 'text-white' : 'text-gray-900'}`}>
-              <i className="fas fa-lightbulb mr-2"></i>Suggest a Topic
+              <i className="fa-solid fa-lightbulb mr-2"></i>Suggest a Topic
             </h2>
             <p className={`mb-4 sm:mb-6 text-sm sm:text-base ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
               Have a biology topic you'd like us to write about?

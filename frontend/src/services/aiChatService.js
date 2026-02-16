@@ -73,7 +73,7 @@ export const askBiologyQuestion = async (question, context = null) => {
     if (error.response?.status === 429 || errorMsg.includes('quota')) {
       return {
         success: false,
-        error: '⏸️ API quota limit reached. Please wait a moment and try again. The free tier has daily limits.',
+        error: 'API quota limit reached. Please wait a moment and try again. The free tier has daily limits.',
         isQuotaError: true
       };
     }

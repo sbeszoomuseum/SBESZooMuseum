@@ -1,10 +1,16 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 import axios from 'axios';
 import { SiteContext } from '../contexts/SiteContext';
 
 const PersonalizationAdminPanel = ({ token, isDark }) => {
   const { siteSettings, updateSiteSettings } = useContext(SiteContext);
-  const [formData, setFormData] = useState(siteSettings);
+  const [formData, setFormData] = useState({
+    ...siteSettings,
+    primary_color: siteSettings.primary_color || '#7c3aed',
+    secondary_color: siteSettings.secondary_color || '#3b82f6',
+    font_url: siteSettings.font_url || '',
+    font_family: siteSettings.font_family || 'Poppins'
+  });
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState({ text: '', type: '' });
   const [logoFile, setLogoFile] = useState(null);
@@ -15,6 +21,25 @@ const PersonalizationAdminPanel = ({ token, isDark }) => {
   const BACKEND_URL = window.location.hostname === 'localhost'
     ? 'http://localhost:8000'
     : (process.env.REACT_APP_BACKEND_URL || 'https://biomuseum.onrender.com');
+
+  // Sync formData with siteSettings when they change
+  useEffect(() => {
+    if (siteSettings && Object.keys(siteSettings).length > 0) {
+      console.log('🔄 Syncing formData with updated siteSettings:', siteSettings);
+      setFormData({
+        website_name: siteSettings.website_name || '',
+        initiative_text: siteSettings.initiative_text || '',
+        college_name: siteSettings.college_name || '',
+        department_name: siteSettings.department_name || '',
+        logo_url: siteSettings.logo_url || '',
+        primary_color: siteSettings.primary_color || '#7c3aed',
+        secondary_color: siteSettings.secondary_color || '#3b82f6',
+        font_url: siteSettings.font_url || '',
+        font_family: siteSettings.font_family || 'Poppins'
+      });
+      setLogoPreview(siteSettings.logo_url);
+    }
+  }, [siteSettings]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -82,19 +107,28 @@ const PersonalizationAdminPanel = ({ token, isDark }) => {
         updatePayload.logo_url = logoUrl;
       }
 
+      console.log('💾 Saving settings:', updatePayload);
       await updateSiteSettings(updatePayload, token);
+      
+      // Refresh settings after save
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
       setLogoFile(null);
       setLogoUrl('');
       setMessage({ 
-        text: '✅ Site settings updated successfully!', 
+        text: 'Site settings updated successfully! Changes will appear immediately.', 
         type: 'success' 
       });
-      setTimeout(() => setMessage({ text: '', type: '' }), 3000);
+      
+      // Refetch to ensure latest values are loaded
+      setTimeout(() => {
+        setMessage({ text: '', type: '' });
+      }, 4000);
     } catch (error) {
       console.error('Error saving settings:', error);
       const errorMsg = error.response?.data?.detail || error.message || 'Failed to save settings';
       setMessage({ 
-        text: `❌ ${errorMsg}`, 
+        text: errorMsg, 
         type: 'error' 
       });
     } finally {
@@ -109,7 +143,7 @@ const PersonalizationAdminPanel = ({ token, isDark }) => {
           {/* Header */}
           <div className="mb-8">
             <h2 className={`text-3xl font-bold ${isDark ? 'text-white' : 'text-gray-800'} flex items-center gap-3 mb-2`}>
-              <i className="fas fa-magic fa-lg text-purple-500"></i>
+              <i className="fa-solid fa-wand-magic-sparkles fa-lg text-purple-500"></i>
               Website Personalization
             </h2>
             <p className={`${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
@@ -119,11 +153,12 @@ const PersonalizationAdminPanel = ({ token, isDark }) => {
 
           {/* Message Alert */}
           {message.text && (
-            <div className={`mb-6 p-4 rounded-lg ${
+            <div className={`mb-6 p-4 rounded-lg flex items-center gap-3 ${
               message.type === 'success' 
                 ? `${isDark ? 'bg-green-900 border-green-700' : 'bg-green-100 border-green-400'} ${isDark ? 'text-green-300' : 'text-green-700'} border`
                 : `${isDark ? 'bg-red-900 border-red-700' : 'bg-red-100 border-red-400'} ${isDark ? 'text-red-300' : 'text-red-700'} border`
             }`}>
+              <i className={`fa-solid ${message.type === 'success' ? 'fa-circle-check' : 'fa-circle-xmark'} text-lg`}></i>
               {message.text}
             </div>
           )}
@@ -132,7 +167,7 @@ const PersonalizationAdminPanel = ({ token, isDark }) => {
             {/* Website Name Section */}
             <div>
               <label className={`block text-lg font-semibold mb-3 ${isDark ? 'text-white' : 'text-gray-800'}`}>
-                <i className="fas fa-globe mr-2 text-purple-500"></i>
+                <i className="fa-solid fa-globe mr-2 text-purple-500"></i>
                 Website Name
               </label>
               <input
@@ -155,7 +190,7 @@ const PersonalizationAdminPanel = ({ token, isDark }) => {
             {/* Initiative Text */}
             <div>
               <label className={`block text-lg font-semibold mb-3 ${isDark ? 'text-white' : 'text-gray-800'}`}>
-                <i className="fas fa-book-open mr-2 text-blue-500"></i>
+                <i className="fa-solid fa-book-open mr-2 text-blue-500"></i>
                 Initiative Text
               </label>
               <input
@@ -178,7 +213,7 @@ const PersonalizationAdminPanel = ({ token, isDark }) => {
             {/* College Name */}
             <div>
               <label className={`block text-lg font-semibold mb-3 ${isDark ? 'text-white' : 'text-gray-800'}`}>
-                <i className="fas fa-university mr-2 text-green-500"></i>
+                <i className="fa-solid fa-graduation-cap mr-2 text-green-500"></i>
                 College/Institution Name
               </label>
               <input
@@ -201,7 +236,7 @@ const PersonalizationAdminPanel = ({ token, isDark }) => {
             {/* Department Name */}
             <div>
               <label className={`block text-lg font-semibold mb-3 ${isDark ? 'text-white' : 'text-gray-800'}`}>
-                <i className="fas fa-flask mr-2 text-orange-500"></i>
+                <i className="fa-solid fa-flask mr-2 text-orange-500"></i>
                 Department Name
               </label>
               <input
@@ -221,10 +256,130 @@ const PersonalizationAdminPanel = ({ token, isDark }) => {
               </p>
             </div>
 
+            {/* Primary Color */}
+            <div>
+              <label className={`block text-lg font-semibold mb-3 ${isDark ? 'text-white' : 'text-gray-800'}`}>
+                <i className="fa-solid fa-palette mr-2 text-red-500"></i>
+                Primary Color
+              </label>
+              <div className="flex gap-4 items-end">
+                <div className="flex-1">
+                  <input
+                    type="color"
+                    name="primary_color"
+                    value={formData.primary_color || '#7c3aed'}
+                    onChange={handleInputChange}
+                    className={`w-full h-12 rounded-lg cursor-pointer border-2 ${
+                      isDark
+                        ? 'border-gray-600'
+                        : 'border-gray-300'
+                    }`}
+                  />
+                </div>
+                <input
+                  type="text"
+                  value={formData.primary_color || '#7c3aed'}
+                  onChange={(e) => handleInputChange({ target: { name: 'primary_color', value: e.target.value } })}
+                  placeholder="#7c3aed"
+                  className={`flex-1 px-4 py-3 rounded-lg border-2 transition-all font-mono ${
+                    isDark
+                      ? 'bg-gray-700 border-gray-600 text-white focus:border-red-500 focus:ring-2 focus:ring-red-900'
+                      : 'border-gray-300 focus:border-red-500 focus:ring-2 focus:ring-red-200'
+                  } focus:outline-none`}
+                />
+              </div>
+              <p className={`text-sm mt-2 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+                Choose the primary color for buttons, links, and highlights across your website
+              </p>
+            </div>
+
+            {/* Secondary Color */}
+            <div>
+              <label className={`block text-lg font-semibold mb-3 ${isDark ? 'text-white' : 'text-gray-800'}`}>
+                <i className="fa-solid fa-palette mr-2 text-blue-500"></i>
+                Secondary Color
+              </label>
+              <div className="flex gap-4 items-end">
+                <div className="flex-1">
+                  <input
+                    type="color"
+                    name="secondary_color"
+                    value={formData.secondary_color || '#3b82f6'}
+                    onChange={handleInputChange}
+                    className={`w-full h-12 rounded-lg cursor-pointer border-2 ${
+                      isDark
+                        ? 'border-gray-600'
+                        : 'border-gray-300'
+                    }`}
+                  />
+                </div>
+                <input
+                  type="text"
+                  value={formData.secondary_color || '#3b82f6'}
+                  onChange={(e) => handleInputChange({ target: { name: 'secondary_color', value: e.target.value } })}
+                  placeholder="#3b82f6"
+                  className={`flex-1 px-4 py-3 rounded-lg border-2 transition-all font-mono ${
+                    isDark
+                      ? 'bg-gray-700 border-gray-600 text-white focus:border-blue-500 focus:ring-2 focus:ring-blue-900'
+                      : 'border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200'
+                  } focus:outline-none`}
+                />
+              </div>
+              <p className={`text-sm mt-2 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+                Choose the secondary color for accents and gradients
+              </p>
+            </div>
+
+            {/* Font URL (Google Fonts/CDN) */}
+            <div>
+              <label className={`block text-lg font-semibold mb-3 ${isDark ? 'text-white' : 'text-gray-800'}`}>
+                <i className="fa-solid fa-font mr-2 text-cyan-500"></i>
+                Font URL (Google Fonts or CDN)
+              </label>
+              <input
+                type="url"
+                name="font_url"
+                value={formData.font_url || ''}
+                onChange={handleInputChange}
+                placeholder="e.g., https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700"
+                className={`w-full px-4 py-3 rounded-lg border-2 transition-all ${
+                  isDark
+                    ? 'bg-gray-700 border-gray-600 text-white focus:border-cyan-500 focus:ring-2 focus:ring-cyan-900'
+                    : 'border-gray-300 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-200'
+                } focus:outline-none`}
+              />
+              <p className={`text-sm mt-2 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+                Paste your Google Fonts embed link, e.g., <code className={`${isDark ? 'bg-gray-700' : 'bg-gray-200'} px-2 py-1 rounded`}>https://fonts.googleapis.com/css2?family=Poppins</code>
+              </p>
+            </div>
+
+            {/* Font Family Name */}
+            <div>
+              <label className={`block text-lg font-semibold mb-3 ${isDark ? 'text-white' : 'text-gray-800'}`}>
+                <i className="fa-solid fa-type mr-2 text-green-500"></i>
+                Font Family Name
+              </label>
+              <input
+                type="text"
+                name="font_family"
+                value={formData.font_family || ''}
+                onChange={handleInputChange}
+                placeholder="e.g., Poppins, Arial, Georgia"
+                className={`w-full px-4 py-3 rounded-lg border-2 transition-all ${
+                  isDark
+                    ? 'bg-gray-700 border-gray-600 text-white focus:border-green-500 focus:ring-2 focus:ring-green-900'
+                    : 'border-gray-300 focus:border-green-500 focus:ring-2 focus:ring-green-200'
+                } focus:outline-none`}
+              />
+              <p className={`text-sm mt-2 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+                Enter the font family name to apply to your website (must match the font from the URL above)
+              </p>
+            </div>
+
             {/* Logo Section */}
             <div>
               <label className={`block text-lg font-semibold mb-3 ${isDark ? 'text-white' : 'text-gray-800'}`}>
-                <i className="fas fa-image mr-2 text-indigo-500"></i>
+                <i className="fa-solid fa-image mr-2 text-indigo-500"></i>
                 Institution Logo
               </label>
               
@@ -238,7 +393,7 @@ const PersonalizationAdminPanel = ({ token, isDark }) => {
                   />
                 ) : (
                   <div className={`text-center ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
-                    <i className="fas fa-image text-4xl mb-2"></i>
+                    <i className="fa-solid fa-image text-4xl mb-2"></i>
                     <p>No logo uploaded yet</p>
                   </div>
                 )}
@@ -258,7 +413,7 @@ const PersonalizationAdminPanel = ({ token, isDark }) => {
                       : `${isDark ? 'bg-gray-700 text-gray-300 hover:bg-gray-600' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}`
                   }`}
                 >
-                  <i className="fas fa-upload mr-2"></i>Upload File
+                  <i className="fa-solid fa-upload mr-2"></i>Upload File
                 </button>
                 <button
                   type="button"
@@ -272,7 +427,7 @@ const PersonalizationAdminPanel = ({ token, isDark }) => {
                       : `${isDark ? 'bg-gray-700 text-gray-300 hover:bg-gray-600' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}`
                   }`}
                 >
-                  <i className="fas fa-link mr-2"></i>From URL
+                  <i className="fa-solid fa-link mr-2"></i>From URL
                 </button>
               </div>
 
@@ -329,12 +484,12 @@ const PersonalizationAdminPanel = ({ token, isDark }) => {
               >
                 {saving ? (
                   <>
-                    <i className="fas fa-spinner fa-spin"></i>
+                    <i className="fa-solid fa-spinner fa-spin"></i>
                     Saving...
                   </>
                 ) : (
                   <>
-                    <i className="fas fa-save"></i>
+                    <i className="fa-solid fa-floppy-disk"></i>
                     Save Changes
                   </>
                 )}
@@ -342,13 +497,20 @@ const PersonalizationAdminPanel = ({ token, isDark }) => {
               <button
                 type="button"
                 onClick={() => {
-                  setFormData(siteSettings);
+                  setFormData({
+                    ...siteSettings,
+                    primary_color: siteSettings.primary_color || '#7c3aed',
+                    secondary_color: siteSettings.secondary_color || '#3b82f6',
+                    font_url: siteSettings.font_url || '',
+                    font_family: siteSettings.font_family || 'Poppins'
+                  });
                   setLogoFile(null);
                   setLogoPreview(siteSettings.logo_url);
+                  setLogoUrl('');
                 }}
                 className={`flex-1 ${isDark ? 'bg-gray-700 hover:bg-gray-600 text-white' : 'bg-gray-300 hover:bg-gray-400 text-gray-800'} font-bold py-3 px-6 rounded-lg transition-all flex items-center justify-center gap-2`}
               >
-                <i className="fas fa-undo"></i>
+                <i className="fa-solid fa-rotate-left"></i>
                 Reset
               </button>
             </div>
@@ -356,9 +518,9 @@ const PersonalizationAdminPanel = ({ token, isDark }) => {
             {/* Preview Section */}
             <div className={`mt-8 p-6 rounded-lg ${isDark ? 'bg-gray-700' : 'bg-purple-50'} border-2 ${isDark ? 'border-gray-600' : 'border-purple-200'}`}>
               <h3 className={`text-lg font-semibold mb-4 ${isDark ? 'text-white' : 'text-gray-800'}`}>
-                <i className="fas fa-eye mr-2"></i>Preview
+                <i className="fa-solid fa-eye mr-2"></i>Preview
               </h3>
-              <div className="space-y-2">
+              <div className="space-y-3">
                 <div className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
                   <strong>Website Name:</strong> <span className={isDark ? 'text-white' : 'text-gray-800'}>{formData.website_name}</span>
                 </div>
@@ -370,6 +532,37 @@ const PersonalizationAdminPanel = ({ token, isDark }) => {
                 </div>
                 <div className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
                   <strong>Department Name:</strong> <span className={isDark ? 'text-white' : 'text-gray-800'}>{formData.department_name}</span>
+                </div>
+                <hr className={isDark ? 'border-gray-600' : 'border-purple-200'} />
+                <div className="flex items-center gap-4">
+                  <div className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+                    <strong>Primary Color:</strong>
+                  </div>
+                  <div 
+                    className="w-12 h-12 rounded-lg border-2 border-gray-400 shadow-md"
+                    style={{ backgroundColor: formData.primary_color || '#7c3aed' }}
+                  ></div>
+                  <span className={`font-mono text-sm ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+                    {(formData.primary_color || '#7c3aed').toUpperCase()}
+                  </span>
+                </div>
+                <div className="flex items-center gap-4">
+                  <div className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+                    <strong>Secondary Color:</strong>
+                  </div>
+                  <div 
+                    className="w-12 h-12 rounded-lg border-2 border-gray-400 shadow-md"
+                    style={{ backgroundColor: formData.secondary_color || '#3b82f6' }}
+                  ></div>
+                  <span className={`font-mono text-sm ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+                    {(formData.secondary_color || '#3b82f6').toUpperCase()}
+                  </span>
+                </div>
+                <div className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+                  <strong>Font Family:</strong> <span className={isDark ? 'text-white' : 'text-gray-800'} style={{ fontFamily: formData.font_family || 'Poppins' }}>{formData.font_family || 'Poppins'}</span>
+                </div>
+                <div className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+                  <strong>Font URL:</strong> <span className={`text-xs break-all ${isDark ? 'text-gray-500' : 'text-gray-700'}`}>{formData.font_url || 'Not set'}</span>
                 </div>
               </div>
             </div>
