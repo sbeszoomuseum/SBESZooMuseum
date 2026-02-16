@@ -24,9 +24,11 @@ const BiotubeAdminPanel = ({ token, isDark }) => {
   const [submitLoading, setSubmitLoading] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
 
-  const BACKEND_URL = window.location.hostname === 'localhost'
-    ? 'http://localhost:8000'
-    : (process.env.REACT_APP_BACKEND_URL || 'https://biomuseum.onrender.com');
+  const BACKEND_URL = (() => {
+    if (process.env.REACT_APP_BACKEND_URL) return process.env.REACT_APP_BACKEND_URL;
+    if (window.location.hostname.includes('vercel.app')) return 'https://sbzoomuseum.onrender.com';
+    return 'http://localhost:8000';
+  })();
   const API = `${BACKEND_URL}/api`;
   
   // Debug log

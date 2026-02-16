@@ -1,7 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8000';
+const BACKEND_URL = (() => {
+  if (process.env.REACT_APP_BACKEND_URL) return process.env.REACT_APP_BACKEND_URL;
+  if (window.location.hostname.includes('vercel.app')) return 'https://sbzoomuseum.onrender.com';
+  return 'http://localhost:8000';
+})();
 const API = `${BACKEND_URL}/api`;
 
 const AnalyticsDashboard = ({ isDark }) => {

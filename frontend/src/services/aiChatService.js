@@ -5,7 +5,7 @@ const BACKEND_URL = (() => {
     return process.env.REACT_APP_BACKEND_URL;
   }
   if (window.location.hostname.includes('vercel.app')) {
-    return 'https://biomuseum.onrender.com';
+    return 'https://sbzoomuseum.onrender.com';
   }
   if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
     return 'http://localhost:8000';

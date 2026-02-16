@@ -19,7 +19,7 @@ const BiotubeVideoPage = ({ isDark }) => {
 
   const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || (
     window.location.hostname.includes('vercel.app')
-      ? 'https://biomuseum.onrender.com'
+      ? 'https://sbzoomuseum.onrender.com'
       : 'http://localhost:8000'
   );
   const API = `${BACKEND_URL}/api`;

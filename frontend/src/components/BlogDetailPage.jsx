@@ -13,7 +13,7 @@ const BlogDetailPage = ({ isDark }) => {
 
   const BACKEND_URL = window.location.hostname === 'localhost'
     ? 'http://localhost:8000'
-    : (process.env.REACT_APP_BACKEND_URL || 'https://biomuseum.onrender.com');
+    : (process.env.REACT_APP_BACKEND_URL || 'https://sbzoomuseum.onrender.com');
   const API = `${BACKEND_URL}/api`;
 
   useEffect(() => {
